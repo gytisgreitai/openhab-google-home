@@ -62,6 +62,7 @@ Trait | Sample command
 [action.devices.traits.StartStop](https://developers.google.com/actions/smarthome/traits/startstop) | `Stop the washer`
 [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness) | `Set light brightness to 55%`
 [action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Set player volume to 55%`
+
 [1] - not officially supported yet
 
   
