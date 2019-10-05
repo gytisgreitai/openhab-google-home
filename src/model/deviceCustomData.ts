@@ -1,0 +1,3 @@
+import { OpenhabItemType } from './openhab';
+
+
