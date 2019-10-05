@@ -71,11 +71,21 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   return device
 }
 
+async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {
+  const errorCode = item.state === 'NULL' ? "deviceNotReady" : undefined;
+  return {
+    online: true,
+    currentFanSpeedSetting: item.state,
+    errorCode: errorCode
+  }
+}
+
 export const fanSpeed: Trait = {
   name: 'action.devices.traits.FanSpeed',
   commands: ['action.devices.commands.SetFanSpeed'],
   execute: {
     'action.devices.commands.SetFanSpeed': execute
   },
-  sync
+  sync,
+  query
 }
