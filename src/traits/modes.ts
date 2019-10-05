@@ -15,10 +15,10 @@ export interface ModesCustomData extends BaseCustomData {
 
 export interface ModesTraitConfig {
   lang?: string;
-  settings: string;
+  modeSettings: string;
   ordered?: string;
   mode: string;
-  commandMap?: string;
+  modeCommandMap?: string;
 }
 
 async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
@@ -40,8 +40,8 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
     deviceId = targetItem.name
     const config = targetItem.metadata.google.config as ModesTraitConfig;
     // FIXME: extract to generic command lookup
-    if (config.commandMap) {
-      config.commandMap.split(',').forEach(c => {
+    if (config.modeCommandMap) {
+      config.modeCommandMap.split(',').forEach(c => {
         const parts = c.split('=')
         if (parts[0] === modeValue) {
           value = parts[1]
@@ -71,12 +71,12 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   const config = item.metadata.google.config as ModesTraitConfig;
   const customData = device.customData as ModesCustomData;
 
-  if (!config || !config.settings) {
+  if (!config || !config.modeSettings) {
     return null;
   }
   let hasInvalidValue = false;
 
-  const settings = config.settings.split(',').map(s => {
+  const settings = config.modeSettings.split(',').map(s => {
     const [command, synonyms] = s.split('=')
     hasInvalidValue = hasInvalidValue || ([OpenhabItemType.Number].includes(type) && isNaN(command as any))
     return {
@@ -111,11 +111,43 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
     device.attributes.commandOnlyOnOff = true;
   }
 
-  if (config.commandMap) {
+  if (config.modeCommandMap) {
     customData.lookupOnExecute = true;
   }
 
   return device
+}
+
+async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {
+  let currentSetting;
+  const config = item.metadata.google.config as ModesTraitConfig;
+
+  if (config.modeCommandMap) {
+    const matchedCommand = config.modeCommandMap.split(',').find((commandAndValue) => {
+      const command = commandAndValue.split('=')[1];
+      if (item.type === OpenhabItemType.Number) {
+        return !isNaN(command as any) && !isNaN(item.state as any) && Number(command) === Number(item.state)
+      }
+      return command === item.state
+    })
+    if (matchedCommand) {
+      currentSetting = matchedCommand.split('=')[0];
+    }
+  } else {
+    currentSetting = item.state;
+  }
+
+  if (currentSetting && currentSetting !== 'NULL') {
+    return {
+      online: true,
+      currentModeSettings: {
+        [config.mode.split('=')[0]] : currentSetting
+      }
+    }
+  }
+  return {
+    online: true,
+  }
 }
 
 export const modes: Trait = {
@@ -124,5 +156,6 @@ export const modes: Trait = {
   execute: {
     'action.devices.commands.SetModes':  execute,
   },
-  sync
+  sync,
+  query
 }

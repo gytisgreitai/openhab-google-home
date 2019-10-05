@@ -1,9 +1,9 @@
-import { BaseCustomData } from "../model/google";
 import { api } from "../api";
 import { OpenhabItem, OpenhabItemType } from "../model/openhab";
 import { groupItemsOfSameType } from "../model/selectors";
 import { lookupTraits, getStateQuery } from "../traits";
 import { SmartHomeV1QueryRequestDevices } from "actions-on-google";
+import * as deepmerge from 'deepmerge';
 
 export async function query(authToken: string, device: SmartHomeV1QueryRequestDevices) {
   let targetItems: OpenhabItem[] = []
@@ -19,7 +19,8 @@ export async function query(authToken: string, device: SmartHomeV1QueryRequestDe
     for (const trait of traits) {
       const queryResult = await getStateQuery(trait)(targetItem, device)
       console.log('Trait ', trait, ' returned result ', queryResult);
-      deviceData = {...deviceData, ...queryResult}
+      // deepmerge needed for mode traits. this might be bad in the long run and source of complex bugs
+      deviceData = deepmerge(deviceData, queryResult)
     }
     
   }

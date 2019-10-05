@@ -44,6 +44,7 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
   console.log('getting executor', req.command);
   const executor = getExecutor(req.command);
   const { value, deviceId } = await executor(authToken, device, req, type, targetItems);
+
   let targetDeviceId = device.id;
   if (deviceId) {
     targetDeviceId = deviceId
@@ -52,6 +53,7 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
     targetDeviceId = targetItems[0].name
   }
   
+  // FIXME: wrong deviceId will be returned if we have group with different items under the hood
   return optimisticUpdate(authToken, value, targetDeviceId);
 }
 

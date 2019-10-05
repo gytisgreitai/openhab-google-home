@@ -3,8 +3,8 @@
 
 // Complex Washing machine. Group acts as an umbrella and each group item has separate traits and allows you to control multiple options by having just single device on Google Home
 Group Washer       "Washer"               {google="action.devices.types.WASHER"}
-String Washer_Cycle       "Cycle" (Washer) {google="action.devices.traits.Modes" [ mode="Cycle=cycle", settings="Low=low,Medium=medium,High=high", commandMap="Low=1,Medium=1,High=2", lang="en", ordered=false ]}
-String Washer_Temperature "Temperature" (Washer) {google="action.devices.traits.Modes" [ mode="Water Temperature=water Temperature", settings="Tap Cold=tap cold,Cold Warm=cold warm,Hot=hot,Extra Hot=extra hot", commandMap="Tap Cold=30,Cold Warm=40,Hot=60,Extra Hot=90", lang="en", ordered=true ]}
+String Washer_Cycle       "Cycle" (Washer) {google="action.devices.traits.Modes" [ mode="Cycle=cycle", modeSettings="Low=low,Medium=medium,High=high", modeCommandMap="Low=1,Medium=1,High=2", lang="en", ordered=false ]}
+String Washer_Temperature "Temperature" (Washer) {google="action.devices.traits.Modes" [ mode="temperature=temperature", modeSettings="Tap Cold=tap cold,Cold Warm=cold warm,Hot=hot,Extra Hot=extra hot", modeCommandMap="Tap Cold=30,Cold Warm=40,Hot=60,Extra Hot=90", lang="en", ordered=true ]}
 Switch Washer_Power       "Power"       (Washer) {google="action.devices.traits.OnOff"}
 
 // All items are the same in group, and all are of type `Switch`
@@ -172,18 +172,20 @@ Dimmer |  will send command defined in speeds. Note that it mus be numeric, e.g.
 
 ### Trait `action.devices.traits.Modes`
 
-This one is really tricky. It allows you to specify modes that device supports and control them, e.g. `set wash Water Temperature to High`. The problem that the mode (`Water Temperature`) and it's value (`High`) **[can only have values that google supports](https://developers.google.com/actions/smarthome/reference/traits/modes)** (with exact casing) Otherwise google will sync the device but will not execute any command
+**Note: queries seem to be broken for some modes**
+
+This one is really tricky. It allows you to specify modes that device supports and control them, e.g. `set washer gemperature to High`. The problem that the mode (`temperature`) and it's value (`High`) **[can only have values that google supports](https://developers.google.com/actions/smarthome/reference/traits/modes)** (with exact casing) Otherwise google will sync the device but will not execute any command
 
 ### Examples
 ```
-String Booster   "Booster" { google="action.devices.types.FAN" [ traits="action.devices.traits.Modes",  mode="Level=level", settings="Low=low,Medium=medium,High=high", commandMap="Low=level_1,Medium=level_2", lang="en", ordered=false]}
+String Booster   "Booster" { google="action.devices.types.FAN" [ traits="action.devices.traits.Modes",  mode="Level=level", modeSettings="Low=low,Medium=medium,High=high", modeCommandMap="Low=level_1,Medium=level_2", lang="en", ordered=false]}
 ```
 
 ### Supported configuration options
  * **mode**=[mode=alias] - mode  and name_synonym for the device. **[can only have values that google supports, see `Mode names`](https://developers.google.com/actions/smarthome/reference/traits/modes#mode-names_1)** 
- * **settings**=[setting1=name1,setting1=name2:alias2] - supported mode values.  **[can only have values that google supports, see `Mode settings`](https://developers.google.com/actions/smarthome/reference/traits/modes#mode-settings)** 
+ * **modeSettings**=[setting1=name1,setting1=name2:alias2] - supported mode values.  **[can only have values that google supports, see `Mode settings`](https://developers.google.com/actions/smarthome/reference/traits/modes#mode-settings)** 
  * **lang**=[lang] - language code in which mode names are defined. Defaults to 'en' (English)
- * **commandMap**=[setting1=command1,setting2=command2] - since google is very strinct about supported settings, you can remap those into command values that will be sent to openhab items
+ * **modeCommandMap**=[setting1=command1,setting2=command2] - since google is very strinct about supported settings, you can remap those into command values that will be sent to openhab items
 
 Supported Openhab item |  notes
 ------------ | -------------
