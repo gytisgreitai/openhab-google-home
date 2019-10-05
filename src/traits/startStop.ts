@@ -68,6 +68,25 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   return device
 }
 
+async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {
+  let isRunning = false, isPaused = false;
+
+  switch(item.type) {
+    case OpenhabItemType.Switch:
+      isRunning = item.state === 'ON';
+      break
+    case OpenhabItemType.String:
+      isRunning = item.state === 'ON' || item.state === 'RESUME';
+      isPaused = item.state === 'PAUSE';
+      break;
+  }
+  return {
+    online: true,
+    isRunning,
+    isPaused
+  }
+}
+
 export const startStop: Trait = {
   name: 'action.devices.traits.StartStop',
   commands: [
@@ -78,5 +97,6 @@ export const startStop: Trait = {
     'action.devices.commands.StartStop': executeStartStop,
     'action.devices.commands.PauseUnpause':  executePauseUnpause,
   },
-  sync
+  sync,
+  query
 }
