@@ -59,6 +59,7 @@ Trait | Sample command
 [action.devices.traits.FanSpeed](https://developers.google.com/actions/smarthome/traits/fanspeed) | `Set the fan to low`
 [action.devices.traits.Modes](https://developers.google.com/actions/smarthome/traits/modes) | `Set the dryer to permanent press.`
 [action.devices.traits.StartStop](https://developers.google.com/actions/smarthome/traits/startstop) | `Stop the washer`
+[action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness) | `Set light brightness to 55%`
 
   
 ### Trait `action.devices.traits.OpenClose`
