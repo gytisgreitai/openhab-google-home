@@ -44,6 +44,15 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   return device
 }
 
+async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {
+  const customData = device.customData as LockUnlockCustomData;
+  return {
+    online: true,
+    isLocked:  item.state === customData.lockCommand || item.state === 'ON',
+    isJammed: false
+  }
+}
+
 
 export const lockUnlock: Trait = {
   name: 'action.devices.traits.LockUnlock',
@@ -51,5 +60,6 @@ export const lockUnlock: Trait = {
   execute: {
     'action.devices.commands.LockUnlock':  execute
   },
-  sync
+  sync,
+  query
 }
