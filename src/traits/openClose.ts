@@ -108,5 +108,6 @@ export const openClose: Trait = {
   execute: {
     'action.devices.commands.OpenClose':  execute
   },
-  sync
+  sync,
+  query
 }
