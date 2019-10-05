@@ -39,8 +39,9 @@ Device | Default Trait
 [action.devices.types.WASHER](https://developers.google.com/actions/smarthome/guides/washer) | [action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff)
 [action.devices.types.BLINDS](https://developers.google.com/actions/smarthome/guides/blinds) | [action.devices.traits.OpenClose](https://developers.google.com/actions/smarthome/traits/openclose)
 [action.devices.types.LIGHT](https://developers.google.com/actions/smarthome/guides/light) | [action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff), [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness)
+[action.devices.types.SPEAKER](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
   
-    
+[1] - not officially supported yet
 
 # Supported Traits
 
@@ -60,6 +61,8 @@ Trait | Sample command
 [action.devices.traits.Modes](https://developers.google.com/actions/smarthome/traits/modes) | `Set the dryer to permanent press.`
 [action.devices.traits.StartStop](https://developers.google.com/actions/smarthome/traits/startstop) | `Stop the washer`
 [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness) | `Set light brightness to 55%`
+[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Set player volume to 55%`
+[1] - not officially supported yet
 
   
 ### Trait `action.devices.traits.OpenClose`
@@ -231,3 +234,32 @@ Supported Openhab item |  notes
 String |  Will send percentage as is
 Switch |   Will send percentage as is
 Dimmer |   Will send percentage as is
+
+
+
+### Trait `action.devices.traits.Volume`
+
+**Note : this trait is not officially supported by google, but does seem to work, trait is reverse engineered. [more on this here](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)**
+
+**Note2: volume quering does not seem to work**
+
+### Examples
+```
+// device Speaker defaults to Volume trait
+Dimmer SqueezeboxPlayer  "Squeezebox Player"    {google="action.devices.types.SPEAKER"}
+
+// When asking to "increase volume" volumeIncrementStep indicates how much should we increase.
+// this is due to unknown properties of the trait
+String SqueezeboxPlayer  "Squeezebox Player"    {google="action.devices.types.SPEAKER" [volumeIncrementStep="10"]}
+
+```
+
+### Supported configuration options
+ * **volumeIncrementStep**=[number] - step by which volume should increase when doing relative volume control. Defaults to 1
+
+
+Supported Openhab item |  notes
+------------ | -------------
+String |  Will send volume level as is
+Dimmer |  Will send volume level as is
+

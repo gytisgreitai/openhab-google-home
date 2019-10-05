@@ -2,19 +2,9 @@ import { OpenhabItem, OpenhabItemType } from '../model/openhab';
 import { SmartHomeV1SyncDevices } from 'actions-on-google';
 import { getSynonyms } from './utils';
 import { BaseCustomData } from '../model/google';
-import { getSyncer, lookupTraits } from '../traits';
+import { getSyncer, lookupTraits, defaultDeviceToTraitMap } from '../traits';
 
-const supportedDevices = [
-  'action.devices.types.GATE',
-  'action.devices.types.SWITCH',
-  'action.devices.types.GARAGE',
-  'action.devices.types.DOOR',
-  'action.devices.types.LOCK',
-  'action.devices.types.FAN',
-  'action.devices.types.WASHER',
-  'action.devices.types.BLINDS',
-  'action.devices.types.LIGHT'
-];
+const supportedDevices = Object.keys(defaultDeviceToTraitMap)
 
 export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): SmartHomeV1SyncDevices {
   const { config, value : device } = item.metadata.google
