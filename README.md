@@ -81,15 +81,13 @@ String Blinds  "Blinds"    {google="action.devices.types.BLINDS" [directionMap=U
 
 ### Supported configuration options
  * **inverted**=[true] - Inverts percentage and command `Open` will send `Off`, 30 percent will send 70 percent, etc.
- * **directionMap**=[command=alias,command1=alias] - Allows to specify custom commands that would be sent . Eg. ` directionMap=UP=UP_100,DOWN=DOWN_100"`. This would send `UP_100` instead of `UP` for `Open blinds`. Only if Openhab item is type of String
-
 
 Supported Openhab item |  notes
 ------------ | -------------
-Rollershutter | If percentage is given, will send percentage.  In case of `'UP','LEFT', 'IN'` will send `UP` else `DOWN`
-String | Will send command or percentage as is. If percentage and command is provided will send both separated by space e.g. `ON 50`
-Dimmer | If percentage is given, will send percentage.  In case of `'UP','LEFT', 'IN'` will send `ON` else `OFF`
-Switch | In case of `'UP','LEFT', 'IN'` will send `ON` else `OFF`
+Rollershutter | Will send percentage. If percentage is zero will send `DOWN`, if 100 then `UP` (unless inverted)
+String | Will send percentage as is (unless inverted)
+Dimmer | Will send percentage. If percentage is zero will send `DOWN`, if 100 then `UP` (unless inverted)
+Switch | If percentage is zero will send send `ON`  if 100 then `OFF` (unless inverted)
 
   
 ### Trait `action.devices.traits.OnOff`

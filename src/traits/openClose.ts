@@ -17,7 +17,13 @@ export interface OpenCloseConfig {
 
 export interface OpenCloseCustomData extends BaseCustomData {
   inverted?: boolean;
-  directionMap?: { [key: string]: string }
+}
+
+const getStateOnOffFromType = (type: OpenhabItemType) => {
+  return [
+    type === OpenhabItemType.Rollershutter ? 'UP' : 'ON',
+    OpenhabItemType.Rollershutter ? 'DOWN' : 'OFF'
+  ];
 }
 
 export async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
@@ -25,7 +31,6 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
   const params = req.params as OpenCloseParams;
   let value;
 
-  let command: string = params.openDirection;
   let openPercent = params.openPercent
 
   if (customData.inverted && typeof openPercent !== 'undefined') {
@@ -34,20 +39,16 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
   
   switch(type) {
     case OpenhabItemType.String: 
-      if (customData.directionMap && command) {
-        command = customData.directionMap[command] || command;
-      }
-      value = command ? `${command} ${openPercent}` : `${openPercent}`
+      value = `${openPercent}` 
       break;
     case OpenhabItemType.Switch:
     case OpenhabItemType.Rollershutter:
     case OpenhabItemType.Dimmer:
       const supportsPercentage = type !== OpenhabItemType.Switch;
-      const on  = type === OpenhabItemType.Rollershutter ? 'UP' : 'ON'
-      const off = type === OpenhabItemType.Rollershutter ? 'DOWN' : 'OFF'
+      const [on, off] = getStateOnOffFromType(type);
       if (supportsPercentage && (openPercent > 0 && openPercent < 100)) {
         value = `${openPercent}`
-      } else if (['UP','LEFT', 'IN'].indexOf(command) > -1 || openPercent === 0) {
+      } else if (openPercent === 0) {
         value = customData.inverted ? off : on
       } else {
         value = customData.inverted ? on : off
@@ -66,13 +67,6 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
     return device;
   }
   
-  if (config.directionMap) {
-    customData.directionMap = config.directionMap.split(',').reduce((acc, mapping) => {
-      const dmap = mapping.split('=')
-      acc[dmap[0]] = dmap[1]
-      return acc;
-    }, {})
-  }
   if (config.inverted) {
     customData.inverted = config.inverted === 'true'
   }
@@ -81,6 +75,30 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   }
 
   return device
+}
+
+
+async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {
+  let openPercent: number = isNaN(item.state as any) ? 0 : Number(item.state);
+  const customData = device.customData as OpenCloseCustomData;
+  if (customData.inverted) {
+    openPercent = 100 - openPercent;
+  }
+  const [on, off]  = getStateOnOffFromType(item.type);
+
+  switch(item.type) {
+    case OpenhabItemType.Switch:
+    case OpenhabItemType.Dimmer:
+    case OpenhabItemType.Rollershutter:
+      if (item.state === on || item.state === off) {
+        openPercent = item.state === on && !customData.inverted ? 100 : 0;
+      }
+      break;
+  }
+  return {
+    online: true,
+    openPercent,
+  }
 }
 
 
