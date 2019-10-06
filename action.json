@@ -1,0 +1,18 @@
+{
+  "actions": [
+    {
+      "description": "OpenHAB Google Home Automation",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "openhab-gh-automation"
+      }
+    }
+  ],
+  "conversations": {
+    "openhab-gh-automation": {
+      "name": "openhab-gh-automation",
+      "url": "AUTOMATION_DOMAIN_HERE/smarthome"
+    }
+  },
+  "locale": "en"
+}
