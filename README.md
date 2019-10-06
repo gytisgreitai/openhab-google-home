@@ -40,6 +40,8 @@ Device | Default Trait
 [action.devices.types.BLINDS](https://developers.google.com/actions/smarthome/guides/blinds) | [action.devices.traits.OpenClose](https://developers.google.com/actions/smarthome/traits/openclose)
 [action.devices.types.LIGHT](https://developers.google.com/actions/smarthome/guides/light) | [action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff), [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness)
 [action.devices.types.SPEAKER](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
+[action.devices.types.SOUNDBAR](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
+[action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
   
 [1] - not officially supported yet
 

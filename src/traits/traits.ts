@@ -34,6 +34,8 @@ export const defaultDeviceToTraitMap = {
   'action.devices.types.BLINDS': ['action.devices.traits.OpenClose'],
   'action.devices.types.LIGHT':  ['action.devices.traits.OnOff','action.devices.traits.Brightness'],
   'action.devices.types.SPEAKER':['action.devices.traits.Volume'],
+  'action.devices.types.SOUNDBAR':['action.devices.traits.Volume'],
+  'action.devices.types.TV':['action.devices.traits.OnOff'],
 }
 
 export function lookupTraits(meta: GoogleMeta, device: string) {
