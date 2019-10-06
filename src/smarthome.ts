@@ -4,7 +4,7 @@ import {
   Headers,
   SmartHomeV1SyncDevices,
 } from 'actions-on-google'
-import { getAuthToken } from './auth';
+import { getAuthTokenOrFail } from './auth';
 import { api } from './api';
 import { toGoogleDevice } from './sync';
 import { execute } from './execute';
@@ -18,10 +18,8 @@ export const smartHomeApp = smarthome({
 // SmartHomeV1SyncDevices
 
 smartHomeApp.onSync(async (body, headers) => {
-  const authToken = getAuthToken(headers);
-  if (!authToken) {
-    throw new Error('missing authorization header');
-  }
+  
+  const authToken = getAuthTokenOrFail(headers);
 
   const devices: SmartHomeV1SyncDevices[] = []; 
   const items = await api.getAll(authToken)
@@ -46,10 +44,7 @@ smartHomeApp.onSync(async (body, headers) => {
 })
 
 smartHomeApp.onExecute(async (body, headers) => {
-  const authToken = getAuthToken(headers);
-  if (!authToken) {
-    throw new Error('missing authorization header');
-  }
+  const authToken = getAuthTokenOrFail(headers);
 
   const results: SmartHomeV1ExecuteResponseCommands[] = [];
   for (const r of body.inputs) {
@@ -82,10 +77,8 @@ smartHomeApp.onExecute(async (body, headers) => {
 
 
 smartHomeApp.onQuery(async (body, headers) => {
-  const authToken = getAuthToken(headers);
-  if (!authToken) {
-    throw new Error('missing authorization header');
-  }
+  const authToken = getAuthTokenOrFail(headers);
+
   const devices : { [key: string] : any} = {};
   for (const r of body.inputs) {
     for (const device of r.payload.devices) {

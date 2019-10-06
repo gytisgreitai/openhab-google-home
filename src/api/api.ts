@@ -11,10 +11,15 @@ const parameters = {
 const baseUrl = `${config.openhab.host}${config.openhab.itemsPath}`;
 
 function get<T>(authToken, url) {
+
+  const headers = {}
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
   return axios({
     method: 'GET',
     url ,
-    headers: {'Authorization': `Bearer ${authToken}`},
+    headers,
     params: parameters
   }).then(res => res.data as T)
 }
@@ -28,14 +33,16 @@ function getItem(authToken: string, item: string) {
 }
 
 function updateState(authToken: string, item: string, value: string) {
+  const headers = {
+    'Content-Type': 'text/plain'
+  }
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
   return axios({
     method: 'POST',
-    url: config.openhab.host + config.openhab.itemsPath + item,
-    headers: {
-      'Authorization': `Bearer ${authToken}`,
-      'Content-Length': value.length,
-      'Content-Type': 'text/plain'
-    },
+    url: baseUrl + item,
+    headers: headers,
     data: value
   })
 }

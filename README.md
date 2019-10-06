@@ -47,7 +47,7 @@ Device | Default Trait
 [action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.REMOTECONTROL](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
   
-[1] - not officially supported yet
+[1] - not officially supported by google yet. Can break at any time
 
 # Supported Traits
 
@@ -70,7 +70,7 @@ Trait | Sample command
 [action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Set player volume to 55%`
 [action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Pause player`
 
-[1] - not officially supported yet
+[1] - not officially supported by google yet. Can break at any time
 
   
 ### Trait `action.devices.traits.OpenClose`
