@@ -89,4 +89,16 @@ Next try opening your given domain name in the browser. If you see `OK` string. 
 
 ### Deploy your actions project
 
-TODO:
+For this you need:
+- [gactions cli](https://developers.google.com/actions/tools/gactions-cli)
+- project id (look it up in Google action console from browser url, it will be something like `openhab-home-automation-1234asd`)
+
+```
+curl -o gactions https://dl.google.com/gactions/updates/bin/darwin/amd64/gactions/gactions && chmod +x gactions
+
+curl -o action.json https://raw.githubusercontent.com/gytisgreitai/openhab-google-home/master/action.json
+
+DOMAIN=https://yuor-domain-name && sed -i '.bak'  "s|DOMAIN|$DOMAIN|g" action.json
+
+./gactions test --action_package action.json --project your-project-id-here
+```
