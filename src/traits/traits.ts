@@ -11,6 +11,7 @@ import { BaseCustomData } from "../model/google";
 import { api } from "../api";
 import { groupItemsOfSameType } from "../model/selectors";
 import { volume } from "./volume";
+import { mediaState } from "./mediaState";
 
 export const traits = [
   brightness,
@@ -20,22 +21,24 @@ export const traits = [
   onOff,
   openClose,
   startStop,
-  volume
+  volume,
+  mediaState
 ]
 
 export const defaultDeviceToTraitMap = {
-  'action.devices.types.GATE':   ['action.devices.traits.OpenClose'],
-  'action.devices.types.SWITCH': ['action.devices.traits.OnOff'],
-  'action.devices.types.GARAGE': ['action.devices.traits.OpenClose'],
-  'action.devices.types.DOOR':   ['action.devices.traits.OpenClose'],
-  'action.devices.types.LOCK':   ['action.devices.traits.LockUnlock'],
-  'action.devices.types.FAN':    ['action.devices.traits.FanSpeed'],
-  'action.devices.types.WASHER': ['action.devices.traits.OnOff'],
-  'action.devices.types.BLINDS': ['action.devices.traits.OpenClose'],
-  'action.devices.types.LIGHT':  ['action.devices.traits.OnOff','action.devices.traits.Brightness'],
-  'action.devices.types.SPEAKER':['action.devices.traits.Volume'],
-  'action.devices.types.SOUNDBAR':['action.devices.traits.Volume'],
-  'action.devices.types.TV':['action.devices.traits.OnOff'],
+  'action.devices.types.GATE':            ['action.devices.traits.OpenClose'],
+  'action.devices.types.SWITCH':          ['action.devices.traits.OnOff'],
+  'action.devices.types.GARAGE':          ['action.devices.traits.OpenClose'],
+  'action.devices.types.DOOR':            ['action.devices.traits.OpenClose'],
+  'action.devices.types.LOCK':            ['action.devices.traits.LockUnlock'],
+  'action.devices.types.FAN':             ['action.devices.traits.FanSpeed'],
+  'action.devices.types.WASHER':          ['action.devices.traits.OnOff'],
+  'action.devices.types.BLINDS':          ['action.devices.traits.OpenClose'],
+  'action.devices.types.LIGHT':           ['action.devices.traits.OnOff','action.devices.traits.Brightness'],
+  'action.devices.types.SPEAKER':         ['action.devices.traits.Volume'],
+  'action.devices.types.SOUNDBAR':        ['action.devices.traits.Volume'],
+  'action.devices.types.TV':              ['action.devices.traits.OnOff'],
+  'action.devices.types.REMOTECONTROL':   ['action.devices.traits.MediaState'],
 }
 
 export function lookupTraits(meta: GoogleMeta, device: string) {
@@ -66,7 +69,6 @@ export function getSyncer(traitName: string) {
 export function getStateQuery(traitName: string) {
   return traits.find(({name}) => name === traitName).query;
 }
-
 
 export async function getTargetItems(authToken: string, device: SmartHomeV1QueryRequestDevices, command: string) {
   let targetItems: OpenhabItem[] = []

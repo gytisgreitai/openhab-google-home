@@ -21,6 +21,9 @@ Switch Lamp  "Main Lamp"    {google="action.devices.types.SWITCH"}
 
 // Lamp with brightness controll
 Dimmer BathroomLight  "Bathroom Lamp"    {google="action.devices.types.LIGHT"}
+
+//Player - play, pause, resume, next, previous
+Player Spotify_Squeezebox_Player "Squeezebox"  { google="action.devices.types.REMOTECONTROL"}
 ```
 
 # Supported Devices
@@ -42,6 +45,7 @@ Device | Default Trait
 [action.devices.types.SPEAKER](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.SOUNDBAR](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
+[action.devices.types.REMOTECONTROL](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
   
 [1] - not officially supported yet
 
@@ -265,4 +269,26 @@ Supported Openhab item |  notes
 ------------ | -------------
 String |  Will send volume level as is
 Dimmer |  Will send volume level as is
+
+
+### Trait `action.devices.traits.MediaState`
+
+**Note : this trait is not officially supported by google, but does seem to work, trait is reverse engineered. [more on this here](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)**
+
+**Note2: query is not supported because procotol is unknown**
+
+### Examples
+```
+//Player - play, pause, resume, next, previous
+Player Spotify_Squeezebox_Player "Squeezebox"  { google="action.devices.types.REMOTECONTROL"}
+
+```
+
+### Supported configuration options
+ * none
+
+
+Supported Openhab item |  notes
+------------ | -------------
+Player |  - 
 
