@@ -37,7 +37,7 @@ sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.i
 ```
 
 ### Prepare configuration
-  - get your domain and subdomain
+  - get your domain or subdomain
   - point it out to your ip address (you can look it from coomand line via `curl ipecho.net/plain`)
   - create a clientId and clientSecret that you will use in google auth. Set them to some truly random strings. You have been warned
 
@@ -61,7 +61,7 @@ Let's encrypt will store certificates in ./certs dir, so that if you restart doc
 ```
 sudo docker run \
       -v ./certs:/etc/letsencrypt \ 
-      -e DOMAIN=yourdomain.exmaple.org \
+      -e DOMAIN=your-domain-name \
       -e EMAIL=youremail-for-letsencrypt@example.org \
       -e STANDALONE=true \
       -e STANDALONE_CLIENT_ID=change-this-id-for-your-own-security \
@@ -88,3 +88,5 @@ Next try opening your given domain name in the browser. If you see `OK` string. 
 - In Testing instructions just enter any random data, you are not actually submitting account for testing
 
 ### Deploy your actions project
+
+TODO:
