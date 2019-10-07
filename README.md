@@ -1,3 +1,11 @@
+# Demo OpenHAB Google Home automation app
+
+This is a sample of how an one could control OpenHAB via Google Home voice commands.
+
+For official implementation [please see here](https://www.openhab.org/docs/ecosystem/google-assistant/) . This implenetation relies on OpenHAB metadata which in my opinion is more flexible and its implementation is inspired by [Alexa Smart Home Skill](https://www.openhab.org/docs/ecosystem/alexa/)
+
+This only works as a self hosted solution. For deployment instructions please [read here](docs/standalone.md)
+
 # Sample configuration
 ```
 
@@ -44,18 +52,18 @@ Device | Default Trait
 [action.devices.types.LIGHT](https://developers.google.com/actions/smarthome/guides/light) | [action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff), [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness)
 [action.devices.types.SPEAKER](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.SOUNDBAR](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
-[action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
+[action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff)
 [action.devices.types.REMOTECONTROL](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
   
 [1] - not officially supported by google yet. Can break at any time
 
 # Supported Traits
 
-Traits are actual make the device work. Each of them allows you say things like `Unlock main door` or `Set Bedroom fan speed to low`  
+Traits are things that actually make a device work. Each of them allows you to say things like `Unlock main door` or `Set Bedroom fan speed to low`  
 
-Each trait maps onto specific one more openhab item types.
+Each trait maps onto one or more openhab item type.
 
-Each device must have at least one trait, but you can more than one, if Openhab item that handles this trait does support that  
+Each device must have at least one trait, but you can add more than one, if Openhab item that handles this trait does support it
 
 
 Trait | Sample command
