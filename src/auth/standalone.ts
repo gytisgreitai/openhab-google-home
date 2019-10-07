@@ -35,16 +35,16 @@ export function standaloneAuth(app: Application) {
     const targetToken = getStandaloneToken();
 
     if (auth.clientId !== clientId || auth.clientSecret !== clientSecret) {
-      console.log('clientId or clientSecret missmatched returning 403');
+      console.log('clientId or clientSecret missmatched returning 403', auth, clientId, clientSecret);
       return res.sendStatus(403);
     }
 
     if (grantType === 'refresh_token' && req.body.refresh_token !== targetToken) {
-      console.log('refresh_token missmatched returning 403');
+      console.log('refresh_token missmatched returning 403', req.body.refresh_token, targetToken);
       return res.sendStatus(403);
     }
     if (grantType === 'authorization_code' && code !== getStandaloneCode()) {
-      console.log('code  missmatched returning 403');
+      console.log('code  missmatched returning 403', code, getStandaloneCode());
       return res.sendStatus(403);
     }
     
