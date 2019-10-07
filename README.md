@@ -1,8 +1,8 @@
 # Demo OpenHAB Google Home automation app
 
-This is a sample of how an one could control OpenHAB via Google Home voice commands.
+This is a sample of how one could control OpenHAB via Google Home voice commands.
 
-For official implementation [please see here](https://www.openhab.org/docs/ecosystem/google-assistant/) . This implenetation relies on OpenHAB metadata which in my opinion is more flexible and its implementation is inspired by [Alexa Smart Home Skill](https://www.openhab.org/docs/ecosystem/alexa/)
+For official implementation [please see here](https://www.openhab.org/docs/ecosystem/google-assistant/). This implementation relies on OpenHAB metadata which in my opinion is more flexible. It is inspired by [Alexa Smart Home Skill](https://www.openhab.org/docs/ecosystem/alexa/)
 
 This only works as a self hosted solution. For deployment instructions please [read here](docs/standalone.md)
 
