@@ -22,7 +22,7 @@ export interface OpenCloseCustomData extends BaseCustomData {
 const getStateOnOffFromType = (type: OpenhabItemType) => {
   return [
     type === OpenhabItemType.Rollershutter ? 'UP' : 'ON',
-    OpenhabItemType.Rollershutter ? 'DOWN' : 'OFF'
+    type === OpenhabItemType.Rollershutter ? 'DOWN' : 'OFF'
   ];
 }
 
