@@ -218,6 +218,12 @@ Toggles is an advanced version of OnOff for items that can have two states (on/o
 ```
 // `turn on Power saving on Home Cinema`
 String HomeCinemaPowerSave   "Home Cinema" { google="action.devices.types.TV" [ traits="action.devices.traits.Toggles",  toggle="Power Save=power save:power saving", toggleOnCommand="ECO", toggleOffCommand="NORMAL", lang="en"]}
+
+//multiple toggles via group
+Group HomeCinema { google="action.devices.types.TV"  }
+String HomeCinemaPowerSave  "Home Cinema Power" (HomeCinema) { google="action.devices.traits.Toggles" [ toggle="Power Save=power save:power saving", toggleOnCommand="ECO", toggleOffCommand="NORMAL", lang="en"]}
+String HomeCinemaBluetooth  "Home Cinema Bluetooth" (HomeCinema) { google="action.devices.traits.Toggles" [ toggle="bluetooth=bluetooth", lang="en"]}
+
 ```
 
 ### Supported configuration options

@@ -29,7 +29,7 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   return device
 }
 
-async function executeSetVolume(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * executeSetVolume(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const { volumeLevel } = req.params as SetVolumeParams;
   let value
   switch(type) {
@@ -41,10 +41,10 @@ async function executeSetVolume(authToken: string, device: SmartHomeV1QueryReque
     default:
       throw new Error(`Cannot handle ${type} with executeSetVolume command`);
   }
-  return { value };
+  yield { value };
 }
 
-async function executeVolumeRelative(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * executeVolumeRelative(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   let items = targetItems;
   if (!items || !items.length) {
     items = await getTargetItems(authToken, device, req.command);
@@ -63,7 +63,7 @@ async function executeVolumeRelative(authToken: string, device: SmartHomeV1Query
     default:
       throw new Error(`Cannot handle ${type} with executeSetVolume command`);
   }
-  return { value };
+  yield { value };
 }
 
 async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {

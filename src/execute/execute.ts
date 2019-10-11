@@ -5,19 +5,7 @@ import {
 import { BaseCustomData } from '../model/google';
 import { OpenhabItemType, OpenhabItem } from '../model/openhab';
 import { api } from '../api';
-import { groupItemsOfSameType } from '../model/selectors';
-import { getTraitByCommand, getExecutor, lookupTraits, getTargetItems } from '../traits';
-
-
-async function optimisticUpdate(authToken: string, value: string, deviceId: string) {
-  const res = await api.updateState(authToken, deviceId, value)
-  return Promise.resolve({
-    ids: [
-      deviceId
-    ],
-    status:'SUCCESS' as SmartHomeV1ExecuteStatus
-  })
-}
+import { getExecutor, getTargetItems } from '../traits';
 
 export async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution) {
   // if we have exact item type, just push it through
@@ -30,17 +18,30 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
     type = targetItems[0].type;
   }
   const executor = getExecutor(req.command);
-  const { value, deviceId } = await executor(authToken, device, req, type, targetItems);
-
-  let targetDeviceId = device.id;
-  if (deviceId) {
-    targetDeviceId = deviceId
-  } else if (targetItems && targetItems.length === 1) {
-    // targetItems check is needed if we have an item under group
-    targetDeviceId = targetItems[0].name
+  const executions = executor(authToken, device, req, type, targetItems);
+  let hasErrors = false;
+  for await( const  { value, deviceId }  of executions) {
+    let targetDeviceId = device.id;
+    if (deviceId) {
+      targetDeviceId = deviceId
+    } else if (targetItems && targetItems.length === 1) {
+      // targetItems check is needed if we have an item under group
+      targetDeviceId = targetItems[0].name
+    }
+    try {
+      await api.updateState(authToken, targetDeviceId, value)
+    } catch(e){
+      console.log('Failed executing', targetDeviceId, e)
+      hasErrors = true;
+    }
   }
-  
-  // FIXME: wrong deviceId will be returned if we have group with different items under the hood
-  return optimisticUpdate(authToken, value, targetDeviceId);
+
+  return Promise.resolve({
+    ids: [
+      device.id
+    ],
+    // if one fails, shall all fail?
+    status: (hasErrors ? 'ERROR' : 'SUCCESS') as SmartHomeV1ExecuteStatus
+  })
 }
 

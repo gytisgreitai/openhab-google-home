@@ -17,7 +17,7 @@ export interface LockUnlockConfig {
   unlockCommand?: string;
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as LockUnlockCustomData;
   const { lock } = req.params as LockUnlockParams;
   let value: string;
@@ -32,7 +32,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
     default:
       throw new Error(`Cannot handle ${type} with LockUnlock trait`);
   }
-  return { value };
+  yield { value };
 }
 
 

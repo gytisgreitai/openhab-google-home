@@ -22,7 +22,7 @@ export interface TogglesTraitConfig {
   toggleOffCommand?: string;
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
 
   const { updateToggleSettings } = req.params as TogglesParams;
   const toggles = Object.keys(updateToggleSettings);
@@ -59,8 +59,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
       default:
         throw new Error(`Cannot handle ${type} with SetModes trait`);
     }
-    //FIXME: execution signature should be changed to support multiple returns
-    return { deviceId, value };
+    yield { deviceId, value };
   }
 }
 

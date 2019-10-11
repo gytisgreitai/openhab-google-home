@@ -17,7 +17,7 @@ export interface FanSpeedConfig {
   ordered?: string;
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as FanSpeedCustomData;
   const { fanSpeed } = req.params as SetFanSpeedParams;
   let value;
@@ -31,7 +31,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
     default:
       throw new Error(`Cannot handle ${type} with SetFanSpeed trait`);
   }
-  return { value }; 
+  yield { value }; 
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

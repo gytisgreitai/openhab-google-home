@@ -8,7 +8,7 @@ export type ExecuteHandler = (
   req: SmartHomeV1ExecuteRequestExecution,
   devicetype: OpenhabItemType,
   targetItems?: OpenhabItem[]
-) => Promise<ExecutorResult>
+) => AsyncGenerator<ExecutorResult, void, void>
 
 export interface ExecutorResult {
   value: string;

@@ -17,7 +17,7 @@ export interface OnOffCustomData extends BaseCustomData {
   offCommand?: string;
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as OnOffCustomData;
   const { on } = req.params as OnOffParams;
   let value;
@@ -36,7 +36,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
     default:
       throw new Error(`Cannot handle ${type} with OnOff trait`);
   }
-  return { value };
+  yield { value };
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

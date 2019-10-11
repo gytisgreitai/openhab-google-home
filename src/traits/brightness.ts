@@ -13,7 +13,7 @@ export interface BrightnessConfig {
 export interface BrightnessCustomData extends BaseCustomData {
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const { brightness } = req.params as BrightnessAbsoluteParams;
   let value
   switch(type) {
@@ -25,7 +25,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
     default:
       throw new Error(`Cannot handle ${type} with BrightnessAbsolute trait`);
   }
-  return { value };
+  yield { value };
 }
 
 

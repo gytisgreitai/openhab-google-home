@@ -23,7 +23,7 @@ export interface PauseUnpauseParams {
 }
 
 
-async function executeStartStop(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * executeStartStop(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as StartStopCustomData;
   const { zone, start } = req.params as StartStopParams;
   let value
@@ -40,10 +40,10 @@ async function executeStartStop(authToken: string, device: SmartHomeV1QueryReque
     default:
       throw new Error(`Cannot handle ${type} with StartStop trait`);
   }
-  return  { value };
+  yield  { value };
 }
 
-async function executePauseUnpause(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * executePauseUnpause(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as StartStopCustomData;
   const { pause } = req.params as PauseUnpauseParams;
   let value
@@ -57,7 +57,7 @@ async function executePauseUnpause(authToken: string, device: SmartHomeV1QueryRe
     default:
       throw new Error(`Cannot handle ${type} with PauseUnpause trait`);
   }
-  return { value }
+  yield { value }
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

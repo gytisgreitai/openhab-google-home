@@ -1,13 +1,12 @@
 import { SmartHomeV1QueryRequestDevices, SmartHomeV1ExecuteRequestExecution, SmartHomeV1SyncDevices } from "actions-on-google";
 import { OpenhabItemType, OpenhabItem } from "../model/openhab";
 import { Trait } from "./model";
-import { BaseCustomData } from "../model/google";
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {
   return device
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   let value
   switch(req.command) {
     case 'action.devices.commands.mediaPause':
@@ -27,7 +26,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
       break
   }
 
-  return { value };
+  yield { value };
 }
 
 async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {

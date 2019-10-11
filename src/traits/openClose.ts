@@ -26,7 +26,7 @@ const getStateOnOffFromType = (type: OpenhabItemType) => {
   ];
 }
 
-export async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+export async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as OpenCloseCustomData;
   const params = req.params as OpenCloseParams;
   let value;
@@ -57,7 +57,7 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
     default:
       throw new Error(`Cannot handle ${type} with OpenClose trait`);
   }
-  return { value };
+  yield { value };
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

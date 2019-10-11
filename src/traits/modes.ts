@@ -21,50 +21,51 @@ export interface ModesTraitConfig {
   modeCommandMap?: string;
 }
 
-async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
+async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as ModesCustomData;
   const { updateModeSettings } = req.params as ModesParams;
-  // FIXME: should loop through array
-  const mode = Object.keys(updateModeSettings)[0];
-  const modeValue = updateModeSettings[mode];
-  let deviceType: OpenhabItemType, deviceId: string, value: string;
-
-  // FIXME: extract to generic command lookup
-  const targetItem = targetItems.find(i => {
-    const config = i.metadata.google.config as ModesTraitConfig;
-    return config && config.mode && config.mode.split('=')[0] === mode
-  })
-
-  if (targetItem) {
-    deviceType = targetItem.type
-    deviceId = targetItem.name
-    const config = targetItem.metadata.google.config as ModesTraitConfig;
+  const modes = Object.keys(updateModeSettings)
+  for (const mode of modes) {
+    const modeValue = updateModeSettings[mode];
+    let deviceType: OpenhabItemType, deviceId: string, value: string;
+  
     // FIXME: extract to generic command lookup
-    if (config.modeCommandMap) {
-      config.modeCommandMap.split(',').forEach(c => {
-        const parts = c.split('=')
-        if (parts[0] === modeValue) {
-          value = parts[1]
-        }
-      })
+    const targetItem = targetItems.find(i => {
+      const config = i.metadata.google.config as ModesTraitConfig;
+      return config && config.mode && config.mode.split('=')[0] === mode
+    })
+  
+    if (targetItem) {
+      deviceType = targetItem.type
+      deviceId = targetItem.name
+      const config = targetItem.metadata.google.config as ModesTraitConfig;
+      // FIXME: extract to generic command lookup
+      if (config.modeCommandMap) {
+        config.modeCommandMap.split(',').forEach(c => {
+          const parts = c.split('=')
+          if (parts[0] === modeValue) {
+            value = parts[1]
+          }
+        })
+      }
+    } else {
+      deviceType = type
+      deviceId = device.id
     }
-  } else {
-    deviceType = type
-    deviceId = device.id
+  
+    if (!value) {
+      value = modeValue
+    }
+  
+    switch(deviceType) {
+      case OpenhabItemType.String:
+      case OpenhabItemType.Number:
+        break;
+      default:
+        throw new Error(`Cannot handle ${type} with SetModes trait`);
+    }
+    yield { deviceId, value };
   }
-
-  if (!value) {
-    value = modeValue
-  }
-
-  switch(deviceType) {
-    case OpenhabItemType.String:
-    case OpenhabItemType.Number:
-      break;
-    default:
-      throw new Error(`Cannot handle ${type} with SetModes trait`);
-  }
-  return { deviceId, value };
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {
