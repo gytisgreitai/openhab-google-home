@@ -73,6 +73,7 @@ Trait | Sample command
 [action.devices.traits.LockUnlock](https://developers.google.com/actions/smarthome/traits/lockunlock) | `Lock the front door`
 [action.devices.traits.FanSpeed](https://developers.google.com/actions/smarthome/traits/fanspeed) | `Set the fan to low`
 [action.devices.traits.Modes](https://developers.google.com/actions/smarthome/traits/modes) | `Set the dryer to permanent press.`
+[action.devices.traits.Toggles](https://developers.google.com/actions/smarthome/traits/toggles) | `Turn on sterilization for the dryer.`
 [action.devices.traits.StartStop](https://developers.google.com/actions/smarthome/traits/startstop) | `Stop the washer`
 [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness) | `Set light brightness to 55%`
 [action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Set player volume to 55%`
@@ -208,6 +209,27 @@ Supported Openhab item |  notes
 ------------ | -------------
 String |  will send mode setting, or command defined in commandMap
 Number |  will send command from commandMap based on setting. commandMap is required and key must be numeric, e.g. `Low=0,Medium=1`
+
+### Trait `action.devices.traits.Toggles`
+
+Toggles is an advanced version of OnOff for items that can have two states (on/off). And while you can only have one OnOff trait on google device, device can have many Toggles **[NOTE: can only have values that google supports](https://developers.google.com/actions/smarthome/reference/traits/toggles)** (with exact casing) Otherwise google will sync the device but will not execute any command
+
+### Examples
+```
+// `turn on Power saving on Home Cinema`
+String HomeCinemaPowerSave   "Home Cinema" { google="action.devices.types.TV" [ traits="action.devices.traits.Toggles",  toggle="Power Save=power save:power saving", toggleOnCommand="ECO", toggleOffCommand="NORMAL", lang="en"]}
+```
+
+### Supported configuration options
+ * **toggle**=[toggle=synonym] - toggle  and toggle_synonym for the device. **[can only have values that google supports, see `Toggle names`](https://developers.google.com/assistant/smarthome/reference/traits/toggles#english-en)** 
+ * **toggleOnCommand**=[string] - what to send when toggling on (for String type only)
+ * **toggleOffCommand**=[string] - what to send when toggling off (for String type only)
+
+Supported Openhab item |  notes
+------------ | -------------
+String |  will send `ON` or `toggleOnCommand` when toggling on, `OFF` or `toggleOffCommand` when toggling off
+Switch | 
+Dimmer | 
 
 ### Trait `action.devices.traits.StartStop`
 

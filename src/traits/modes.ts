@@ -24,6 +24,7 @@ export interface ModesTraitConfig {
 async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as ModesCustomData;
   const { updateModeSettings } = req.params as ModesParams;
+  // FIXME: should loop through array
   const mode = Object.keys(updateModeSettings)[0];
   const modeValue = updateModeSettings[mode];
   let deviceType: OpenhabItemType, deviceId: string, value: string;
@@ -31,8 +32,7 @@ async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices
   // FIXME: extract to generic command lookup
   const targetItem = targetItems.find(i => {
     const config = i.metadata.google.config as ModesTraitConfig;
-    const modeFromConfig = config.mode.split('=')[0];
-    return config && config.mode && modeFromConfig === mode
+    return config && config.mode && config.mode.split('=')[0] === mode
   })
 
   if (targetItem) {
@@ -108,7 +108,7 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   })
 
   if (item.metadata.autoupdate && item.metadata.autoupdate.value === 'false') {
-    device.attributes.commandOnlyOnOff = true;
+    device.attributes.commandOnlyModes = true;
   }
 
   if (config.modeCommandMap) {

@@ -12,6 +12,7 @@ import { api } from "../api";
 import { groupItemsOfSameType } from "../model/selectors";
 import { volume } from "./volume";
 import { mediaState } from "./mediaState";
+import { toggles } from "./toggles";
 
 export const traits = [
   brightness,
@@ -22,7 +23,8 @@ export const traits = [
   openClose,
   startStop,
   volume,
-  mediaState
+  mediaState,
+  toggles
 ]
 
 export const defaultDeviceToTraitMap = {
