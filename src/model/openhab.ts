@@ -10,10 +10,15 @@ export enum OpenhabItemType {
   Dimmer = 'Dimmer',
   Rollershutter = 'Rollershutter'
 }
+export interface BaseGoogleConfig {
+  roomHint?: string;
+  groupType?: string;
+  traits?: string;
+}
 
 export interface GoogleMeta {
   value: string;
-  config?: any;
+  config?: BaseGoogleConfig;
 }
 
 export interface MetaValue {

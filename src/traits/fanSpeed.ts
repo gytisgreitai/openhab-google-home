@@ -1,6 +1,6 @@
 import { SmartHomeV1QueryRequestDevices, SmartHomeV1ExecuteRequestExecution, SmartHomeV1SyncDevices } from "actions-on-google";
 
-import { OpenhabItemType, OpenhabItem } from "../model/openhab";
+import { OpenhabItemType, OpenhabItem, BaseGoogleConfig } from "../model/openhab";
 import { Trait } from "./model";
 import { BaseCustomData } from "../model/google";
 
@@ -11,7 +11,7 @@ export interface SetFanSpeedParams {
 export interface FanSpeedCustomData extends BaseCustomData {
 }
 
-export interface FanSpeedConfig {
+export interface FanSpeedConfig extends BaseGoogleConfig {
   lang?: string;
   speeds: string;
   ordered?: string;

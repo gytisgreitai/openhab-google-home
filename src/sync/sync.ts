@@ -43,6 +43,7 @@ export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): Smar
       name: item.label,
       nicknames: [item.label, ...getSynonyms(item.metadata)]
     },
+    roomHint: config && config.roomHint,
     willReportState: false,
     customData: { 
       itemType,
