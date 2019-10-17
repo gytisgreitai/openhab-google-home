@@ -14,6 +14,8 @@ export interface BaseGoogleConfig {
   roomHint?: string;
   groupType?: string;
   traits?: string;
+  tfaAck?: string;
+  tfaPin?: string;
 }
 
 export interface GoogleMeta {

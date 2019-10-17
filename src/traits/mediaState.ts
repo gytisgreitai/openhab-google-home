@@ -26,7 +26,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
       break
   }
 
-  yield { value };
+  yield { value, states : {} };
 }
 
 async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {

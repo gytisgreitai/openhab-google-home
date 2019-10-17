@@ -25,7 +25,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
     default:
       throw new Error(`Cannot handle ${type} with BrightnessAbsolute trait`);
   }
-  yield { value };
+  yield { value, states: { brightness }  };
 }
 
 

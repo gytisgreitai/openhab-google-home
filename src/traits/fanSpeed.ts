@@ -31,7 +31,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
     default:
       throw new Error(`Cannot handle ${type} with SetFanSpeed trait`);
   }
-  yield { value }; 
+  yield { value, states : { currentFanSpeedSetting: fanSpeed } }; 
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

@@ -1,7 +1,7 @@
 import { OpenhabItem, OpenhabItemType } from '../model/openhab';
 import { SmartHomeV1SyncDevices } from 'actions-on-google';
 import { getSynonyms } from './utils';
-import { BaseCustomData } from '../model/google';
+import { BaseCustomData, TFAType } from '../model/google';
 import { getSyncer, lookupTraits, defaultDeviceToTraitMap } from '../traits';
 
 const supportedDevices = Object.keys(defaultDeviceToTraitMap)
@@ -12,7 +12,6 @@ export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): Smar
   if (!device || !supportedDevices.includes(device)) {
     return
   }
-
 
   let discoveredItems: { type: OpenhabItemType, item: OpenhabItem}[] = [];
   let itemsMustHaveTraits = false;
@@ -35,9 +34,7 @@ export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): Smar
   let googleDevice: Partial<SmartHomeV1SyncDevices> = {
     id: item.name,
     type: device,
-    traits: [
-
-    ],
+    traits: [],
     name: {
       defaultNames: [item.label],
       name: item.label,
@@ -49,6 +46,10 @@ export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): Smar
       itemType,
     } as BaseCustomData,
     attributes: { }
+  }
+
+  if (config && (config.tfaAck || config.tfaPin)){
+    (googleDevice.customData as BaseCustomData).tfa = config.tfaAck  ? TFAType.ack : TFAType.pin;
   }
 
   let atleastOneMatched = false
@@ -67,6 +68,8 @@ export function toGoogleDevice(item: OpenhabItem, allItems: OpenhabItem[]): Smar
         }
       }
     }
+    const { config: googleConfig } = discoveredItem.metadata.google
+   
   }
 
   return atleastOneMatched ?  googleDevice as SmartHomeV1SyncDevices : null;

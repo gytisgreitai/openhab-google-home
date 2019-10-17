@@ -57,7 +57,7 @@ export async function * execute(authToken: string, device: SmartHomeV1QueryReque
     default:
       throw new Error(`Cannot handle ${type} with OpenClose trait`);
   }
-  yield { value };
+  yield { value, states: { openPercent } };
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

@@ -12,5 +12,6 @@ export type ExecuteHandler = (
 
 export interface ExecutorResult {
   value: string;
+  states: { [key: string]: any }
   deviceId?: string;
 }

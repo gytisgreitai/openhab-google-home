@@ -54,8 +54,55 @@ Device | Default Trait
 [action.devices.types.SOUNDBAR](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff)
 [action.devices.types.REMOTECONTROL](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
+[action.devices.types.SECURITYSYSTEM](https://developers.google.com/assistant/smarthome/guides/securitysystem) |[action.devices.traits.ArmDisarm](https://developers.google.com/assistant/smarthome/traits/armdisarm)
   
 [1] - not officially supported by google yet. Can break at any time
+
+# Global configuration options
+
+### roomHint
+
+Allows you to assign device to a room instead of doing so via Google Home App. This is just a hint, and can be overriden in Google Home App.
+
+```
+// put Home Cinema in living room
+Group HomeCinema           "Home Cinema"                        { google="action.devices.types.TV" [roomHint="Living room"]}
+```
+
+
+### synonyms
+
+Comma separated list of additional nams that you can use to control devices
+
+```
+// so now you can say Gate, Gates, Main Gate
+Switch Gate  "Gate"  { google="action.devices.types.GATE", synonyms="Gates,Main Gate" },
+```
+  
+# Two Factor authentication
+
+Allows you to add [two factor authentication (TFA) ](https://developers.google.com/assistant/smarthome/two-factor-authentication) to your items. For now this is somewhat limited for simplicity:
+ - if dealing with a Group, you can only have TFA defined on the Group level. No support for TFA based on action
+ - if on TFA is always required for a device, no matter if you are turning it on or of, arming or disarming
+
+TFA comes in two flavours: **pin** and **ack**
+
+#### Pin mode
+
+Means that you will be prompted for a pin to do an action. You have to define tfaPin property in Google metada section
+```
+// Google will ask you for your pin (4567) when arming or disarming Main Security
+Switch MainSecurity "Main Security" { google="action.devices.types.SECURITYSYSTEM" [tfaPin="4567"] }
+```
+
+#### ack mode
+
+Means that you will aknwoledge an action. You have to define tfaAck property in Google metada section
+```
+// Google will ask you for are you sure you want to arm/disarm Main Security
+Switch MainSecurity "Main Security" { google="action.devices.types.SECURITYSYSTEM" [tfaAck="true"] }
+```
+
 
 # Supported Traits
 
@@ -81,7 +128,7 @@ Trait | Sample command
 
 [1] - not officially supported by google yet. Can break at any time
 
-  
+
 ### Trait `action.devices.traits.OpenClose`
 
 ### Examples
@@ -162,7 +209,7 @@ Switch Fan  "Fan"    {google="action.devices.types.DOOR"  trait="action.devices.
 Supported Openhab item |  notes
 ------------ | -------------
 String |  In case of lock will send `ON` else `OFF` unless `lockCommand` or `unlockCommand` configuration is given
-Switch |  In case of lock will send`ON` else `OFF`
+Switch |  In case of lock will send `ON` else `OFF`
 
 
 ### Trait `action.devices.traits.FanSpeed`
@@ -329,3 +376,28 @@ Supported Openhab item |  notes
 ------------ | -------------
 Player |  - 
 
+
+### Trait `action.devices.traits.ArmDisarm`
+
+### Examples
+```
+// simple Security System as a switch without levels
+Switch MainSecurity "Main Security" { google="action.devices.types.SECURITYSYSTEM" }
+
+// with custom commands for on/off
+String MainSecurity "Main Security" { google="action.devices.types.SECURITYSYSTEM" [disarmCommand="DISARM", armCommand="ARM] }
+ 
+// with multiple levels (only for String item type)
+String MainSecurity "Main Security" { google="action.devices.types.SECURITYSYSTEM" [availableArmLevels="stay=Stay:At Home,arm=Arm,sleep=Sleep  ] }
+```
+
+### Supported configuration options
+ * **armCommand**=[command] - what to send when arming. Only if Openhab item is type of String
+ * **disarmCommand**=[command] - what to send when disarming, Only if Openhab item is type of String
+ * **availableArmLevels**=[command=name:synonym,command2=name2:synonym2] - available arm levels, , Only if Openhab item is type of String
+
+
+Supported Openhab item |  notes
+------------ | -------------
+String |  In case of arm will send `ON` else `OFF` unless `armCommand` or `disarmCommand` configuration is given. In case of specific arm level will send as is
+Switch |  In case of arm will send `ON` else `OFF`

@@ -26,8 +26,10 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
 
   const { updateToggleSettings } = req.params as TogglesParams;
   const toggles = Object.keys(updateToggleSettings);
+  let currentToggleSettings;
   for (const toggle of toggles) {
     let toggleOn = Boolean(updateToggleSettings[toggle])
+    currentToggleSettings[toggle] = toggleOn;
     let deviceType: OpenhabItemType, deviceId: string, value: string;
 
     // FIXME: extract to generic command lookup
@@ -59,7 +61,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
       default:
         throw new Error(`Cannot handle ${type} with SetModes trait`);
     }
-    yield { deviceId, value };
+    yield { deviceId, value, states: { currentToggleSettings } };
   }
 }
 
@@ -89,7 +91,7 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   }
 
   if (config.toggleOffCommand || config.toggleOnCommand) {
-    customData.lookupOnExecute = true;
+    customData.lookup = true;
   }
 
   return device

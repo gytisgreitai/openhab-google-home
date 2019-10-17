@@ -36,7 +36,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
     default:
       throw new Error(`Cannot handle ${type} with OnOff trait`);
   }
-  yield { value };
+  yield { value, states: { on } };
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

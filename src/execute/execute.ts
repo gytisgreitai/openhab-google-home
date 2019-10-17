@@ -6,13 +6,19 @@ import { BaseCustomData } from '../model/google';
 import { OpenhabItemType, OpenhabItem } from '../model/openhab';
 import { api } from '../api';
 import { getExecutor, getTargetItems } from '../traits';
+import { verifyTFA } from '../tfa/tfa';
+import deepmerge = require('deepmerge');
 
 export async function execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution) {
+
+  await verifyTFA(authToken, device, req)
+
   // if we have exact item type, just push it through
   // if we don't have it, we must lookup all items and pass them as candidates to the function
   let targetItems: OpenhabItem[] = await getTargetItems(authToken, device, req.command);
   
   const customData = (device.customData as BaseCustomData);
+
   let type: OpenhabItemType = customData && (customData.itemType as OpenhabItemType);
   if (!type && targetItems.length === 1) {
     type = targetItems[0].type;
@@ -20,7 +26,8 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
   const executor = getExecutor(req.command);
   const executions = executor(authToken, device, req, type, targetItems);
   let hasErrors = false;
-  for await( const  { value, deviceId }  of executions) {
+  let states = {}
+  for await( const  { value, deviceId, states : execState }  of executions) {
     let targetDeviceId = device.id;
     if (deviceId) {
       targetDeviceId = deviceId
@@ -30,6 +37,7 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
     }
     try {
       await api.updateState(authToken, targetDeviceId, value)
+      states = deepmerge(states, execState)
     } catch(e){
       console.log('Failed executing', targetDeviceId, e)
       hasErrors = true;
@@ -41,7 +49,8 @@ export async function execute(authToken: string, device: SmartHomeV1QueryRequest
       device.id
     ],
     // if one fails, shall all fail?
-    status: (hasErrors ? 'ERROR' : 'SUCCESS') as SmartHomeV1ExecuteStatus
+    status: (hasErrors ? 'ERROR' : 'SUCCESS') as SmartHomeV1ExecuteStatus,
+    states
   })
 }
 

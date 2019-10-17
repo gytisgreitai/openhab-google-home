@@ -41,7 +41,7 @@ async function * executeSetVolume(authToken: string, device: SmartHomeV1QueryReq
     default:
       throw new Error(`Cannot handle ${type} with executeSetVolume command`);
   }
-  yield { value };
+  yield { value, states: { currentVolume : volumeLevel, isMuted: volumeLevel === 0 } };
 }
 
 async function * executeVolumeRelative(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
@@ -54,16 +54,22 @@ async function * executeVolumeRelative(authToken: string, device: SmartHomeV1Que
   const { volumeRelativeLevel } = req.params as VolumeRelative;
   const newVolume = currentVolume + volumeRelativeLevel * (customData.volumeIncrementStep || 0);
   let value
+  let states
   switch(type) {
     case OpenhabItemType.String:
     case OpenhabItemType.Dimmer:
     case OpenhabItemType.Number:
-      value = `${Math.max(0, Math.min(newVolume, 100))}`;
+      const currentVolume = Math.max(0, Math.min(newVolume, 100))
+      value = `${currentVolume}`;
+      states = {
+        isMuted: currentVolume === 0,
+        currentVolume,
+      }
       break
     default:
       throw new Error(`Cannot handle ${type} with executeSetVolume command`);
   }
-  yield { value };
+  yield { value, states };
 }
 
 async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) {

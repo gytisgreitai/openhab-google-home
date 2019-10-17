@@ -32,7 +32,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
     default:
       throw new Error(`Cannot handle ${type} with LockUnlock trait`);
   }
-  yield { value };
+  yield { value, states: { isLocked: lock } };
 }
 
 

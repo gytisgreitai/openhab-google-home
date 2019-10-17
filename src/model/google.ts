@@ -1,4 +1,9 @@
 export interface BaseCustomData {
   itemType?: string;
-  lookupOnExecute?: boolean;
+  lookup?: boolean;
+  tfa?: TFAType;
 }
+ export enum TFAType {
+   ack = 'ack',
+   pin = 'pin'
+ }

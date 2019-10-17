@@ -25,8 +25,12 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
   const customData = device.customData as ModesCustomData;
   const { updateModeSettings } = req.params as ModesParams;
   const modes = Object.keys(updateModeSettings)
+  let currentModeSettings = {
+     
+  }
   for (const mode of modes) {
     const modeValue = updateModeSettings[mode];
+    currentModeSettings[mode] = modeValue;
     let deviceType: OpenhabItemType, deviceId: string, value: string;
   
     // FIXME: extract to generic command lookup
@@ -64,7 +68,7 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
       default:
         throw new Error(`Cannot handle ${type} with SetModes trait`);
     }
-    yield { deviceId, value };
+    yield { deviceId, value, states: { currentModeSettings } };
   }
 }
 
@@ -113,7 +117,7 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   }
 
   if (config.modeCommandMap) {
-    customData.lookupOnExecute = true;
+    customData.lookup = true;
   }
 
   return device

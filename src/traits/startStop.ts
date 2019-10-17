@@ -40,7 +40,7 @@ async function * executeStartStop(authToken: string, device: SmartHomeV1QueryReq
     default:
       throw new Error(`Cannot handle ${type} with StartStop trait`);
   }
-  yield  { value };
+  yield  { value, states: { isRunning: start, isPaused: false } };
 }
 
 async function * executePauseUnpause(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
@@ -57,7 +57,7 @@ async function * executePauseUnpause(authToken: string, device: SmartHomeV1Query
     default:
       throw new Error(`Cannot handle ${type} with PauseUnpause trait`);
   }
-  yield { value }
+  yield { value, states: { isRunning: true, isPaused: pause } }
 }
 
 function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHomeV1SyncDevices>) {

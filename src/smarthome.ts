@@ -9,6 +9,7 @@ import { api } from './api';
 import { toGoogleDevice } from './sync';
 import { execute } from './execute';
 import { query } from './query/query';
+import { TFAError } from './tfa/tfa';
 
 
 export const smartHomeApp = smarthome({
@@ -56,12 +57,21 @@ smartHomeApp.onExecute(async (body, headers) => {
             const result = await execute(authToken, device, e)
             results.push(result);
           } catch(e) {
-            console.log(e);
-            results.push({
+            let errRes: any  = {
               ids: [device.id],
               status: 'ERROR',
-              errorCode: 'hardError'// TODO: https://developers.google.com/actions/smarthome/reference/errors-exceptions
-            })
+            }
+            if (e instanceof TFAError) {
+              errRes.errorCode = 'challengeNeeded';
+              errRes.challengeNeeded = {
+                type: e.tfaType
+              }
+            } else {
+               // TODO: https://developers.google.com/actions/smarthome/reference/errors-exceptions
+              errRes.errorCode = 'hardError'
+            }
+            results.push(errRes);
+  
           }
         }
       }

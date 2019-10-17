@@ -13,6 +13,7 @@ import { groupItemsOfSameType } from "../model/selectors";
 import { volume } from "./volume";
 import { mediaState } from "./mediaState";
 import { toggles } from "./toggles";
+import { armDisarm } from "./armDisarm";
 
 export const traits = [
   brightness,
@@ -24,7 +25,8 @@ export const traits = [
   startStop,
   volume,
   mediaState,
-  toggles
+  toggles,
+  armDisarm
 ]
 
 export const defaultDeviceToTraitMap = {
@@ -41,6 +43,7 @@ export const defaultDeviceToTraitMap = {
   'action.devices.types.SOUNDBAR':        ['action.devices.traits.Volume'],
   'action.devices.types.TV':              ['action.devices.traits.OnOff'],
   'action.devices.types.REMOTECONTROL':   ['action.devices.traits.MediaState'],
+  'action.devices.types.SECURITYSYSTEM':   ['action.devices.traits.ArmDisarm'],
 }
 
 export function lookupTraits(meta: GoogleMeta, device: string) {
@@ -75,7 +78,7 @@ export function getStateQuery(traitName: string) {
 export async function getTargetItems(authToken: string, device: SmartHomeV1QueryRequestDevices, command: string) {
   let targetItems: OpenhabItem[] = []
   const customData = (device.customData as BaseCustomData);
-  if (!customData || !customData.itemType || customData.lookupOnExecute) {
+  if (!customData || !customData.itemType || customData.lookup) {
     const item = await api.getItem(authToken, device.id)
     if (item.type === OpenhabItemType.Group && !groupItemsOfSameType(item)) {
       const wantedTrait = getTraitByCommand(command);

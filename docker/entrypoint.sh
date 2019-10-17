@@ -16,7 +16,7 @@ if [[ ! -f /usr/share/nginx/certificates/cert.crt ]]; then
     openssl x509 -req -days 365 -in /usr/share/nginx/certificates/cert.csr -signkey /usr/share/nginx/certificates/privkey.pem -out /usr/share/nginx/certificates/fullchain.pem
 fi
 
-nohup node /opt/app/index.js > /var/log/app.log &
+nohup node --harmony-async-iteration /opt/app/index.js > /var/log/app.log &
 
 ### Send certbot Emission/Renewal to background
 $(while :; do /opt/certbot.sh; sleep "${RENEW_INTERVAL:-12h}"; done;) &
