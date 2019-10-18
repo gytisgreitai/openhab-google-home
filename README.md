@@ -125,6 +125,7 @@ Trait | Sample command
 [action.devices.traits.Brightness](https://developers.google.com/actions/smarthome/traits/brightness) | `Set light brightness to 55%`
 [action.devices.traits.Volume](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Set player volume to 55%`
 [action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> | `Pause player`
+[action.devices.traits.ArmDisarm](https://developers.google.com/actions/smarthome/traits/armdisarm| `Arm Security System`
 
 [1] - not officially supported by google yet. Can break at any time
 
