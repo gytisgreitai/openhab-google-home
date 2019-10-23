@@ -129,7 +129,7 @@ Trait | Sample command
 
 [1] - not officially supported by google yet. Can break at any time
 
-
+<br/><br/>
 ### Trait `action.devices.traits.OpenClose`
 
 ### Examples
@@ -157,7 +157,7 @@ String | Will send percentage as is (unless inverted)
 Dimmer | Will send percentage. If percentage is zero will send `DOWN`, if 100 then `UP` (unless inverted)
 Switch | If percentage is zero will send send `ON`  if 100 then `OFF` (unless inverted)
 
-  
+<br/><br/>
 ### Trait `action.devices.traits.OnOff`
 
 ### Examples
@@ -187,7 +187,7 @@ String |  In case of `on` will send `ON` else `OFF` unless `onCommand` or `offCo
 Dimmer | In case of `on` will send `ON` else `OFF`
 Switch | In case of `on` will send `ON` else `OFF`
 
-
+<br/><br/>
 ### Trait `action.devices.traits.LockUnlock`
 
 ### Examples
@@ -212,7 +212,7 @@ Supported Openhab item |  notes
 String |  In case of lock will send `ON` else `OFF` unless `lockCommand` or `unlockCommand` configuration is given
 Switch |  In case of lock will send `ON` else `OFF`
 
-
+<br/><br/>
 ### Trait `action.devices.traits.FanSpeed`
 
 ### Examples
@@ -236,6 +236,7 @@ String |  will send command defined in speeds
 Number |  will send command defined in speeds. Note that it mus be numeric, e.g.` speeds="0=zero,50=half`
 Dimmer |  will send command defined in speeds. Note that it mus be numeric, e.g.` speeds="0=zero,50=half`
 
+<br/><br/>
 ### Trait `action.devices.traits.Modes`
 
 **Note: queries seem to be broken for some modes**
@@ -258,6 +259,7 @@ Supported Openhab item |  notes
 String |  will send mode setting, or command defined in commandMap
 Number |  will send command from commandMap based on setting. commandMap is required and key must be numeric, e.g. `Low=0,Medium=1`
 
+<br/><br/>
 ### Trait `action.devices.traits.Toggles`
 
 Toggles is an advanced version of OnOff for items that can have two states (on/off). And while you can only have one OnOff trait on google device, device can have many Toggles **[NOTE: can only have values that google supports](https://developers.google.com/actions/smarthome/reference/traits/toggles)** (with exact casing) Otherwise google will sync the device but will not execute any command
@@ -285,6 +287,7 @@ String |  will send `ON` or `toggleOnCommand` when toggling on, `OFF` or `toggle
 Switch | 
 Dimmer | 
 
+<br/><br/>
 ### Trait `action.devices.traits.StartStop`
 
 ### Examples
@@ -301,7 +304,7 @@ Supported Openhab item |  notes
 String |  In case of `start` will send `START` else `STOP`. If pausable is enabled for pause will send `PAUSE` and for resume `RESUME`
 Switch | In case of `start` will send `ON` else `OFF`. Does not support pause
 
-
+<br/><br/>
 ### Trait `action.devices.traits.Brightness`
 
 ### Examples
@@ -328,7 +331,7 @@ Switch |   Will send percentage as is
 Dimmer |   Will send percentage as is
 
 
-
+<br/><br/>
 ### Trait `action.devices.traits.Volume`
 
 **Note : this trait is not officially supported by google, but does seem to work, trait is reverse engineered. [more on this here](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)**
@@ -355,7 +358,7 @@ Supported Openhab item |  notes
 String |  Will send volume level as is
 Dimmer |  Will send volume level as is
 
-
+<br/><br/>
 ### Trait `action.devices.traits.MediaState`
 
 **Note : this trait is not officially supported by google, but does seem to work, trait is reverse engineered. [more on this here](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)**
@@ -369,6 +372,7 @@ Player Spotify_Squeezebox_Player "Squeezebox"  { google="action.devices.types.RE
 
 ```
 
+<br/><br/>
 ### Supported configuration options
  * none
 

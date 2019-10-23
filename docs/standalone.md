@@ -10,13 +10,13 @@ This can only handle single opnehab instance
 
 ## **REQUIREMENTS**
 
-* a static ip address that is accessible from the internet on ports 80 and 443 (dynamic would probably also do). No NAT, firewalls, etc.
-* a linux box that runs your openhab instance, or that can be access from this box without any authentication
+* a static ip address that is accessible from the internet on ports 80 and 443 (dynamic would probably also do).
+* a linux box that runs your openhab instance, or that can be accessed from this box without any authentication
 * a domain or subdomain. You can get one for free for example from https://freedns.afraid.org/ (just google it)
 
 There are other options - like running this on some cheap hosting machine, and accessing local openhab instance via some vpn linking, etc (if you don't have a static ip address)
 
-Insructions here are written for x64 debian stretch
+Instructions here are written for x64 debian stretch
 
 ## Setup
 
@@ -44,7 +44,7 @@ sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.i
 ### Prepare configuration
   - get your domain or subdomain
   - point it out to your ip address (you can look it up from command line via `curl ipecho.net/plain`)
-  - create a clientId and clientSecret that you will use in google auth. Set them to some truly random strings. You have been warned
+  - create a `clientId` and `clientSecret` that you will use in google auth. Set them to some truly random strings. You have been warned
 <br/>
 ### Run docker image with Let's Encrypt
 
@@ -60,7 +60,7 @@ STANDALONE_CLIENT_SECRET | clientSecret for oauth flow. Set to something truly r
 OPENHAB_URL | your unprotected openhab url that is reachable from this machine running this docker instance.
 /home/yourusername/certs | path where let's ecnrypt will store it's certs
 
-Let's encrypt will store certificates in /home/yourusername/certs dir, so that if you restart docked, it would not have to request new ones (there is an API call limit). Make sure you set that path to something that actually exists
+Let's encrypt will store certificates in /home/yourusername/certs dir, so that if you restart docker, it would not have to request new ones (there is an API call limit). Make sure you set that path to something that actually exists
 
 **Your are running docker as sudo. You know what that means**
 
