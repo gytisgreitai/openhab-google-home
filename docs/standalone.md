@@ -45,8 +45,8 @@ sudo apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.i
   - get your domain or subdomain
   - point it out to your ip address (you can look it up from command line via `curl ipecho.net/plain`)
   - create a clientId and clientSecret that you will use in google auth. Set them to some truly random strings. You have been warned
-
-### Run docker image
+<br/>
+### Run docker image with Let's Encrypt
 
 Substitute configuration values with appropriate params
 
@@ -76,10 +76,44 @@ sudo docker run \
       -p 80:80 -p 443:443 \
       -d gytisgreitai/openhab-ga-unofficial-demo:latest
 ```
+<br/>
+### Option 2: Run Without Let's encrypt
 
+If you already have your own certificates, you can just pass them to the nginx and disable let's encrypt.
+Sample of running docker image on non standard ports with already existing certificates under `/opt/mycerts`. This directory should contain `privkey.pem` and `fullchain.pem` files
+
+```
+ docker run \
+      -v /opt/mycerts:/usr/share/nginx/certificates/ \
+      -e DISABLE_LETS_ENCRYPT=true \
+      -e STANDALONE=true \
+      -e STANDALONE_CLIENT_ID=change-this-id-for-your-own-security \
+      -e STANDALONE_CLIENT_SECRET=change-this-secret-for-your-own-security \
+      -e OPENHAB_URL=http://your-openhab-host-reachable-from-this-machine:8080 \
+      -p 8080:80 -p 4430:443 \
+      -d gytisgreitai/openhab-ga-unofficial-demo:latest
+```
+<br/>
+### Option 3: Run app only without nginx
+
+If you already have your web server setup, you can run only the app in docker container. Application by default will listen on `3000` port, you can change that with `PORT` env variable
+
+```
+ docker run \
+      -e STANDALONE=true \
+      -e STANDALONE_CLIENT_ID=change-this-id-for-your-own-security \
+      -e STANDALONE_CLIENT_SECRET=change-this-secret-for-your-own-security \
+      -e OPENHAB_URL=http://your-openhab-host-reachable-from-this-machine:8080 \
+      -p 3000:3000 \
+      -d gytisgreitai/openhab-ga-unofficial-demo:app-only
+```
+<br/> <br/>
+
+### Verify setup
 Next try opening your given domain name in the browser. If you see `OK` string. All good.
   
 Sometimes let's encrypt fails due to server overload issues. If you are sure that your domain DNS is correctly setup, and you see ssl warning while accessing it, try restarting docker container.
+  
   
 
 ### Create Actions project
