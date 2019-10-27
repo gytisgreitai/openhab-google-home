@@ -20,6 +20,7 @@ export interface OnOffCustomData extends BaseCustomData {
 async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevices, req: SmartHomeV1ExecuteRequestExecution, type: OpenhabItemType, targetItems?: OpenhabItem[]) {
   const customData = device.customData as OnOffCustomData;
   const { on } = req.params as OnOffParams;
+  console.log('on off execute got', on);
   let value;
 
   switch(type) {

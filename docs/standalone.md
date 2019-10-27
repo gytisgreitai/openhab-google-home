@@ -77,6 +77,7 @@ sudo docker run \
       -d gytisgreitai/openhab-ga-unofficial-demo:latest
 ```
 <br/>
+
 ### Option 2: Run Without Let's encrypt
 
 If you already have your own certificates, you can just pass them to the nginx and disable let's encrypt.
@@ -94,6 +95,7 @@ Sample of running docker image on non standard ports with already existing certi
       -d gytisgreitai/openhab-ga-unofficial-demo:latest
 ```
 <br/>
+
 ### Option 3: Run app only without nginx
 
 If you already have your web server setup, you can run only the app in docker container. Application by default will listen on `3000` port, you can change that with `PORT` env variable
