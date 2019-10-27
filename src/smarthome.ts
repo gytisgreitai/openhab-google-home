@@ -103,3 +103,9 @@ smartHomeApp.onQuery(async (body, headers) => {
     }
   }
 })
+
+smartHomeApp.onDisconnect(() => {
+  return {
+    
+  }
+})

@@ -8,4 +8,4 @@ COPY package.json .
 COPY yarn.lock .
 COPY dist .
 RUN yarn install --production
-CMD ["node", "./index.js"]
+CMD ["node", "--harmony-async-iteration", "./index.js"]
