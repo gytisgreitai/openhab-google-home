@@ -6,9 +6,7 @@ build:
 	yarn run tsc -b
 
 docker:
-	docker build -t ${IMAGE_NAME}:${TAG} -f docker/${TYPE}/Dockerfile .
-	docker tag ${IMAGE_NAME}:${TAG} ${REMOTE}/${IMAGE_NAME}:${TAG}
-	docker push ${REMOTE}/${IMAGE_NAME}:${TAG}
+	docker buildx build --platform linux/arm/v7,linux/amd64,linux/arm64 -t ${REMOTE}/${IMAGE_NAME}:${TAG} --push -f docker/${TYPE}/Dockerfile .
 
 docker-app:
 	make docker -e TYPE=app -e TAG=app-only

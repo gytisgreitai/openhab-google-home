@@ -26,18 +26,16 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
 
   const { updateToggleSettings } = req.params as TogglesParams;
   const toggles = Object.keys(updateToggleSettings);
-  let currentToggleSettings;
+  let currentToggleSettings = {};
   for (const toggle of toggles) {
     let toggleOn = Boolean(updateToggleSettings[toggle])
     currentToggleSettings[toggle] = toggleOn;
     let deviceType: OpenhabItemType, deviceId: string, value: string;
-
     // FIXME: extract to generic command lookup
     const targetItem = targetItems.find(i => {
       const config = i.metadata.google.config as TogglesTraitConfig;
-      return config && config.toggle && config.toggle.split('=')[0] === toggle;
+      return config && config.toggle && config.toggle.split('=')[0].toLowerCase() === toggle.toLowerCase();
     })
-
     if (targetItem) {
       deviceType = targetItem.type
       deviceId = targetItem.name
