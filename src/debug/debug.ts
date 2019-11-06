@@ -37,7 +37,7 @@ async function  debugHandler(req: Request, res: Response) {
     })
     result.push({
       title: 'Openhab google items',
-      result: devices
+      result: JSON.stringify(devices, null, 4)
     })
   }
 
@@ -55,7 +55,13 @@ async function  debugHandler(req: Request, res: Response) {
     })
   }
 
-  res.status(200).json(result);
+  const resultPlain = result.reduce((a, r) => {
+    a = a + `\n\r${r.title}:\n\r${r.result}`;
+    return a
+  }, '')
+
+
+  res.status(200).header('Content-Type', 'text/plain').send(resultPlain);
 }
 
 
