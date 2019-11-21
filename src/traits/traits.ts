@@ -43,7 +43,8 @@ export const defaultDeviceToTraitMap = {
   'action.devices.types.SOUNDBAR':        ['action.devices.traits.Volume'],
   'action.devices.types.TV':              ['action.devices.traits.OnOff'],
   'action.devices.types.REMOTECONTROL':   ['action.devices.traits.MediaState'],
-  'action.devices.types.SECURITYSYSTEM':   ['action.devices.traits.ArmDisarm'],
+  'action.devices.types.SECURITYSYSTEM':  ['action.devices.traits.ArmDisarm'],
+  'action.devices.types.VACUUM':          ['action.devices.traits.StartStop'],
 }
 
 export function lookupTraits(meta: GoogleMeta, device: string) {

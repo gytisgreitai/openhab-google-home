@@ -41,6 +41,7 @@ Devices allow you to have icons and certain synonyms in your google Home. Each d
 
 Device | Default Trait
 ------------ | -------------
+[action.devices.types.VACUUM](https://developers.google.com/actions/smarthome/guides/vacuum) | [action.devices.traits.StartStop](https://developers.google.com/actions/smarthome/traits/startstop)
 [action.devices.types.GATE](https://developers.google.com/actions/smarthome/guides/gate) | [action.devices.traits.OpenClose](https://developers.google.com/actions/smarthome/traits/openclose)
 [aaction.devices.types.SWITCH](https://developers.google.com/actions/smarthome/guides/switch) | [action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff)
 [action.devices.types.GARAGE](https://developers.google.com/actions/smarthome/guides/garage) | [action.devices.traits.OpenClose](https://developers.google.com/actions/smarthome/traits/openclose)
@@ -293,6 +294,9 @@ Dimmer |
 ### Examples
 ```
 Switch Washer       "Washer"  { google="action.devices.types.WASHER" [trait="action.devices.traits.StartStop" ] }
+
+// hey google, vacuum the kitchen
+String RoborockRoom  "Roborock Room" (Roborock) { google="action.devices.types.VACUUM" [trait="action.devices.traits.StartStop",  zones="kitchen,living room,bedroom,table"]}
 ```
 
 ### Supported configuration options

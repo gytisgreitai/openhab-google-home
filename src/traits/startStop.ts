@@ -64,7 +64,7 @@ function sync(type: OpenhabItemType, item: OpenhabItem, device: Partial<SmartHom
   const config = item.metadata.google.config as StartStopConfig;
   const customData = device.customData as StartStopCustomData;
   device.attributes.pausable = config && config.pausable === 'true';
-  device.attributes.zones = config && config.zones ? config.zones.split(",") : undefined
+  device.attributes.availableZones = config && config.zones ? config.zones.split(",") : undefined
   return device
 }
 
@@ -76,7 +76,8 @@ async function query(item: OpenhabItem, device: SmartHomeV1QueryRequestDevices) 
       isRunning = item.state === 'ON';
       break
     case OpenhabItemType.String:
-      isRunning = item.state === 'ON' || item.state === 'RESUME';
+      // indexOf needed for zone support
+      isRunning = (item.state && item.state.indexOf('ON') > -1) || item.state === 'RESUME';
       isPaused = item.state === 'PAUSE';
       break;
   }
