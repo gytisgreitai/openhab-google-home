@@ -24,24 +24,37 @@ smartHomeApp.onSync(async (body, headers) => {
 
   const devices: SmartHomeV1SyncDevices[] = []; 
   const items = await api.getAll(authToken)
-  items.forEach(item => {
-    if (!item.metadata || !item.metadata.google) {
-      return;
+  
+  try {
+    items.forEach(item => {
+      if (!item.metadata || !item.metadata.google) {
+        return;
+      }
+  
+      const googleDevice = toGoogleDevice(item, items);
+      if (googleDevice) {
+        devices.push(googleDevice);
+      }
+    })
+  
+    return {
+      requestId: body.requestId,
+      payload: {
+        agentUserId: '',
+        devices : devices
+      },
     }
-
-    const googleDevice = toGoogleDevice(item, items);
-    if (googleDevice) {
-      devices.push(googleDevice);
+  } catch (e) {
+    console.log('sync error', e)
+    return {
+      requestId: body.requestId,
+      payload: {
+        errorCode: 'hardError',
+        devices: []
+      }
     }
-  })
-
-  return {
-    requestId: body.requestId,
-    payload: {
-      agentUserId: '',
-      devices : devices
-    },
   }
+ 
 })
 
 smartHomeApp.onExecute(async (body, headers) => {
@@ -57,6 +70,7 @@ smartHomeApp.onExecute(async (body, headers) => {
             const result = await execute(authToken, device, e)
             results.push(result);
           } catch(e) {
+            console.error('Execute error', e)
             let errRes: any  = {
               ids: [device.id],
               status: 'ERROR',

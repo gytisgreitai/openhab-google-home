@@ -14,6 +14,7 @@ import { volume } from "./volume";
 import { mediaState } from "./mediaState";
 import { toggles } from "./toggles";
 import { armDisarm } from "./armDisarm";
+import { scene } from "./scene";
 
 export const traits = [
   brightness,
@@ -26,7 +27,8 @@ export const traits = [
   volume,
   mediaState,
   toggles,
-  armDisarm
+  armDisarm,
+  scene
 ]
 
 export const defaultDeviceToTraitMap = {
@@ -45,6 +47,7 @@ export const defaultDeviceToTraitMap = {
   'action.devices.types.REMOTECONTROL':   ['action.devices.traits.MediaState'],
   'action.devices.types.SECURITYSYSTEM':  ['action.devices.traits.ArmDisarm'],
   'action.devices.types.VACUUM':          ['action.devices.traits.StartStop'],
+  'action.devices.types.SCENE':           ['action.devices.traits.Scene'],
 }
 
 export function lookupTraits(meta: GoogleMeta, device: string) {

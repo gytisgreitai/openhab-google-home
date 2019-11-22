@@ -56,6 +56,7 @@ Device | Default Trait
 [action.devices.types.TV](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.OnOff](https://developers.google.com/actions/smarthome/traits/onoff)
 [action.devices.types.REMOTECONTROL](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup> |[action.devices.traits.MediaState](https://github.com/actions-on-google/smart-home-nodejs/issues/253#issuecomment-451782961)<sup>[1]</sup>
 [action.devices.types.SECURITYSYSTEM](https://developers.google.com/assistant/smarthome/guides/securitysystem) |[action.devices.traits.ArmDisarm](https://developers.google.com/assistant/smarthome/traits/armdisarm)
+[action.devices.types.SCENE](https://developers.google.com/assistant/smarthome/guides/scene) |[action.devices.traits.Scene](https://developers.google.com/assistant/smarthome/traits/scene)
   
 [1] - not officially supported by google yet. Can break at any time
 
@@ -189,6 +190,32 @@ Dimmer | In case of `on` will send `ON` else `OFF`
 Switch | In case of `on` will send `ON` else `OFF`
 
 <br/><br/>
+### Trait `action.devices.traits.Scene`
+
+### Examples
+```
+//  `start party mode` `stop party mode` `activate party mode`
+// with custom commands
+String PartyMode "Party Mode" { google="action.devices.types.SCENE" [activateCommand="START", deactivateCommand="STOP", reversible="true"]}
+
+// default switch with on/off
+Switch PartyMode "Party Mode" { google="action.devices.types.SCENE" [reversible="true"]}
+
+```
+
+### Supported configuration options
+ * **activateCommand**=[command] -  what to send when activating scene. Only if Openhab item is type of String
+ * **deactivateCommand**=[command] - what to send when deactivating scene. Only if Openhab item is type of String
+ * **reversible**=[true] - if scene can be reversed
+
+
+Supported Openhab item |  notes
+------------ | -------------
+String |  In case of `activate` will send `ON` else `OFF` unless `activateCommand` or `deactivateCommand` configuration is given
+Switch | In case of `activate` will send `ON` else `OFF`
+
+<br/><br/>
+
 ### Trait `action.devices.traits.LockUnlock`
 
 ### Examples
