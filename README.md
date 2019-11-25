@@ -411,6 +411,7 @@ Player Spotify_Squeezebox_Player "Squeezebox"  { google="action.devices.types.RE
 Supported Openhab item |  notes
 ------------ | -------------
 Player |  - 
+String | Supported commands -  PAUSE, STOP, PLAY, NEXT, PREVIOUS, FATFORWARD
 
 
 ### Trait `action.devices.traits.ArmDisarm`

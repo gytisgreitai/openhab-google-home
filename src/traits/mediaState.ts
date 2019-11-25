@@ -12,6 +12,9 @@ async function * execute(authToken: string, device: SmartHomeV1QueryRequestDevic
     case 'action.devices.commands.mediaPause':
       value = 'PAUSE';
       break
+    case 'action.devices.commands.mediaStop':
+      value = 'STOP';
+      break
     case 'action.devices.commands.mediaResume':
       value = 'PLAY';
       break
@@ -44,14 +47,16 @@ export const mediaState: Trait = {
     'action.devices.commands.mediaResume',
     'action.devices.commands.mediaSeekRelative',
     'action.devices.commands.mediaNext',
-    'action.devices.commands.mediaPrevious'
+    'action.devices.commands.mediaPrevious',
+    'action.devices.commands.mediaStop'
   ],
   execute: {
     'action.devices.commands.mediaPause': execute,
     'action.devices.commands.mediaResume': execute,
     'action.devices.commands.mediaSeekRelative': execute,
     'action.devices.commands.mediaNext': execute,
-    'action.devices.commands.mediaPrevious': execute
+    'action.devices.commands.mediaPrevious': execute,
+    'action.devices.commands.mediaStop': execute
   },
   sync,
   query
