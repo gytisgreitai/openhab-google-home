@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Local Home SDK App</title>
+    <!-- <script src="//www.gstatic.com/eureka/smarthome/smarthome_sdk.js"></script> -->
+    <script>
+    // Copyright Google Inc. All Rights Reserved.
+(function() {
+  var m, aa = function(a) {
+          var b = 0;
+          return function() {
+              return b < a.length ? {
+                  done: !1,
+                  value: a[b++]
+              } : {
+                  done: !0
+              }
+          }
+      },
+      p = function(a) {
+          var b = "undefined" != typeof Symbol && Symbol.iterator && a[Symbol.iterator];
+          return b ? b.call(a) : {
+              next: aa(a)
+          }
+      },
+      ba = "function" == typeof Object.create ? Object.create : function(a) {
+          var b = function() {};
+          b.prototype = a;
+          return new b
+      },
+      ca;
+  if ("function" == typeof Object.setPrototypeOf) ca = Object.setPrototypeOf;
+  else {
+      var da;
+      a: {
+          var ea = {
+                  a: !0
+              },
+              fa = {};
+          try {
+              fa.__proto__ = ea;
+              da = fa.a;
+              break a
+          } catch (a) {}
+          da = !1
+      }
+      ca = da ? function(a, b) {
+          a.__proto__ = b;
+          if (a.__proto__ !== b) throw new TypeError(a + " is not extensible");
+          return a
+      } : null
+  }
+  var ha = ca,
+      q = function(a, b) {
+          a.prototype = ba(b.prototype);
+          a.prototype.constructor = a;
+          if (ha) ha(a, b);
+          else
+              for (var c in b)
+                  if ("prototype" != c)
+                      if (Object.defineProperties) {
+                          var d = Object.getOwnPropertyDescriptor(b, c);
+                          d && Object.defineProperty(a, c, d)
+                      } else a[c] = b[c];
+          a.superClass_ = b.prototype
+      },
+      r = "undefined" != typeof window && window === this ? this : "undefined" != typeof global && null != global ? global : this,
+      ia = "function" == typeof Object.defineProperties ? Object.defineProperty : function(a, b, c) {
+          a != Array.prototype && a != Object.prototype &&
+              (a[b] = c.value)
+      },
+      t = function(a, b) {
+          if (b) {
+              var c = r;
+              a = a.split(".");
+              for (var d = 0; d < a.length - 1; d++) {
+                  var e = a[d];
+                  e in c || (c[e] = {});
+                  c = c[e]
+              }
+              a = a[a.length - 1];
+              d = c[a];
+              b = b(d);
+              b != d && null != b && ia(c, a, {
+                  configurable: !0,
+                  writable: !0,
+                  value: b
+              })
+          }
+      };
+  t("Promise", function(a) {
+      function b() {
+          this.batch_ = null
+      }
+
+      function c(k) {
+          return k instanceof e ? k : new e(function(h) {
+              h(k)
+          })
+      }
+      if (a) return a;
+      b.prototype.asyncExecute = function(k) {
+          if (null == this.batch_) {
+              this.batch_ = [];
+              var h = this;
+              this.asyncExecuteFunction(function() {
+                  h.executeBatch_()
+              })
+          }
+          this.batch_.push(k)
+      };
+      var d = r.setTimeout;
+      b.prototype.asyncExecuteFunction = function(k) {
+          d(k, 0)
+      };
+      b.prototype.executeBatch_ = function() {
+          for (; this.batch_ && this.batch_.length;) {
+              var k = this.batch_;
+              this.batch_ = [];
+              for (var h = 0; h < k.length; ++h) {
+                  var g =
+                      k[h];
+                  k[h] = null;
+                  try {
+                      g()
+                  } catch (l) {
+                      this.asyncThrow_(l)
+                  }
+              }
+          }
+          this.batch_ = null
+      };
+      b.prototype.asyncThrow_ = function(k) {
+          this.asyncExecuteFunction(function() {
+              throw k;
+          })
+      };
+      var e = function(k) {
+          this.state_ = 0;
+          this.result_ = void 0;
+          this.onSettledCallbacks_ = [];
+          var h = this.createResolveAndReject_();
+          try {
+              k(h.resolve, h.reject)
+          } catch (g) {
+              h.reject(g)
+          }
+      };
+      e.prototype.createResolveAndReject_ = function() {
+          function k(l) {
+              return function(n) {
+                  g || (g = !0, l.call(h, n))
+              }
+          }
+          var h = this,
+              g = !1;
+          return {
+              resolve: k(this.resolveTo_),
+              reject: k(this.reject_)
+          }
+      };
+      e.prototype.resolveTo_ = function(k) {
+          if (k === this) this.reject_(new TypeError("A Promise cannot resolve to itself"));
+          else if (k instanceof e) this.settleSameAsPromise_(k);
+          else {
+              a: switch (typeof k) {
+                  case "object":
+                      var h = null != k;
+                      break a;
+                  case "function":
+                      h = !0;
+                      break a;
+                  default:
+                      h = !1
+              }
+              h ? this.resolveToNonPromiseObj_(k) : this.fulfill_(k)
+          }
+      };
+      e.prototype.resolveToNonPromiseObj_ = function(k) {
+          var h = void 0;
+          try {
+              h = k.then
+          } catch (g) {
+              this.reject_(g);
+              return
+          }
+          "function" == typeof h ? this.settleSameAsThenable_(h, k) : this.fulfill_(k)
+      };
+      e.prototype.reject_ =
+          function(k) {
+              this.settle_(2, k)
+          };
+      e.prototype.fulfill_ = function(k) {
+          this.settle_(1, k)
+      };
+      e.prototype.settle_ = function(k, h) {
+          if (0 != this.state_) throw Error("Cannot settle(" + k + ", " + h + "): Promise already settled in state" + this.state_);
+          this.state_ = k;
+          this.result_ = h;
+          this.executeOnSettledCallbacks_()
+      };
+      e.prototype.executeOnSettledCallbacks_ = function() {
+          if (null != this.onSettledCallbacks_) {
+              for (var k = 0; k < this.onSettledCallbacks_.length; ++k) f.asyncExecute(this.onSettledCallbacks_[k]);
+              this.onSettledCallbacks_ = null
+          }
+      };
+      var f =
+          new b;
+      e.prototype.settleSameAsPromise_ = function(k) {
+          var h = this.createResolveAndReject_();
+          k.callWhenSettled_(h.resolve, h.reject)
+      };
+      e.prototype.settleSameAsThenable_ = function(k, h) {
+          var g = this.createResolveAndReject_();
+          try {
+              k.call(h, g.resolve, g.reject)
+          } catch (l) {
+              g.reject(l)
+          }
+      };
+      e.prototype.then = function(k, h) {
+          function g(K, y) {
+              return "function" == typeof K ? function(U) {
+                  try {
+                      l(K(U))
+                  } catch (T) {
+                      n(T)
+                  }
+              } : y
+          }
+          var l, n, E = new e(function(K, y) {
+              l = K;
+              n = y
+          });
+          this.callWhenSettled_(g(k, l), g(h, n));
+          return E
+      };
+      e.prototype["catch"] = function(k) {
+          return this.then(void 0,
+              k)
+      };
+      e.prototype.callWhenSettled_ = function(k, h) {
+          function g() {
+              switch (l.state_) {
+                  case 1:
+                      k(l.result_);
+                      break;
+                  case 2:
+                      h(l.result_);
+                      break;
+                  default:
+                      throw Error("Unexpected state: " + l.state_);
+              }
+          }
+          var l = this;
+          null == this.onSettledCallbacks_ ? f.asyncExecute(g) : this.onSettledCallbacks_.push(g)
+      };
+      e.resolve = c;
+      e.reject = function(k) {
+          return new e(function(h, g) {
+              g(k)
+          })
+      };
+      e.race = function(k) {
+          return new e(function(h, g) {
+              for (var l = p(k), n = l.next(); !n.done; n = l.next()) c(n.value).callWhenSettled_(h, g)
+          })
+      };
+      e.all = function(k) {
+          var h = p(k),
+              g =
+              h.next();
+          return g.done ? c([]) : new e(function(l, n) {
+              function E(U) {
+                  return function(T) {
+                      K[U] = T;
+                      y--;
+                      0 == y && l(K)
+                  }
+              }
+              var K = [],
+                  y = 0;
+              do K.push(void 0), y++, c(g.value).callWhenSettled_(E(K.length - 1), n), g = h.next(); while (!g.done)
+          })
+      };
+      return e
+  });
+  var ja = function() {
+          ja = function() {};
+          r.Symbol || (r.Symbol = ka)
+      },
+      la = function(a, b) {
+          this.$jscomp$symbol$id_ = a;
+          ia(this, "description", {
+              configurable: !0,
+              writable: !0,
+              value: b
+          })
+      };
+  la.prototype.toString = function() {
+      return this.$jscomp$symbol$id_
+  };
+  var ka = function() {
+          function a(c) {
+              if (this instanceof a) throw new TypeError("Symbol is not a constructor");
+              return new la("jscomp_symbol_" + (c || "") + "_" + b++, c)
+          }
+          var b = 0;
+          return a
+      }(),
+      na = function() {
+          ja();
+          var a = r.Symbol.iterator;
+          a || (a = r.Symbol.iterator = r.Symbol("Symbol.iterator"));
+          "function" != typeof Array.prototype[a] && ia(Array.prototype, a, {
+              configurable: !0,
+              writable: !0,
+              value: function() {
+                  return ma(aa(this))
+              }
+          });
+          na = function() {}
+      },
+      ma = function(a) {
+          na();
+          a = {
+              next: a
+          };
+          a[r.Symbol.iterator] = function() {
+              return this
+          };
+          return a
+      },
+      oa = function() {
+          this.isRunning_ = !1;
+          this.yieldAllIterator_ = null;
+          this.yieldResult = void 0;
+          this.nextAddress = 1;
+          this.finallyAddress_ = this.catchAddress_ = 0;
+          this.abruptCompletion_ = null
+      },
+      pa = function(a) {
+          if (a.isRunning_) throw new TypeError("Generator is already running");
+          a.isRunning_ = !0
+      };
+  oa.prototype.next_ = function(a) {
+      this.yieldResult = a
+  };
+  oa.prototype.throw_ = function(a) {
+      this.abruptCompletion_ = {
+          exception: a,
+          isException: !0
+      };
+      this.nextAddress = this.catchAddress_ || this.finallyAddress_
+  };
+  oa.prototype["return"] = function(a) {
+      this.abruptCompletion_ = {
+          "return": a
+      };
+      this.nextAddress = this.finallyAddress_
+  };
+  var qa = function(a) {
+      this.context_ = new oa;
+      this.program_ = a
+  };
+  qa.prototype.next_ = function(a) {
+      pa(this.context_);
+      if (this.context_.yieldAllIterator_) return ra(this, this.context_.yieldAllIterator_.next, a, this.context_.next_);
+      this.context_.next_(a);
+      return sa(this)
+  };
+  var ta = function(a, b) {
+      pa(a.context_);
+      var c = a.context_.yieldAllIterator_;
+      if (c) return ra(a, "return" in c ? c["return"] : function(d) {
+          return {
+              value: d,
+              done: !0
+          }
+      }, b, a.context_["return"]);
+      a.context_["return"](b);
+      return sa(a)
+  };
+  qa.prototype.throw_ = function(a) {
+      pa(this.context_);
+      if (this.context_.yieldAllIterator_) return ra(this, this.context_.yieldAllIterator_["throw"], a, this.context_.next_);
+      this.context_.throw_(a);
+      return sa(this)
+  };
+  var ra = function(a, b, c, d) {
+          try {
+              var e = b.call(a.context_.yieldAllIterator_, c);
+              if (!(e instanceof Object)) throw new TypeError("Iterator result " + e + " is not an object");
+              if (!e.done) return a.context_.isRunning_ = !1, e;
+              var f = e.value
+          } catch (k) {
+              return a.context_.yieldAllIterator_ = null, a.context_.throw_(k), sa(a)
+          }
+          a.context_.yieldAllIterator_ = null;
+          d.call(a.context_, f);
+          return sa(a)
+      },
+      sa = function(a) {
+          for (; a.context_.nextAddress;) try {
+              var b = a.program_(a.context_);
+              if (b) return a.context_.isRunning_ = !1, {
+                  value: b.value,
+                  done: !1
+              }
+          } catch (c) {
+              a.context_.yieldResult =
+                  void 0, a.context_.throw_(c)
+          }
+          a.context_.isRunning_ = !1;
+          if (a.context_.abruptCompletion_) {
+              b = a.context_.abruptCompletion_;
+              a.context_.abruptCompletion_ = null;
+              if (b.isException) throw b.exception;
+              return {
+                  value: b["return"],
+                  done: !0
+              }
+          }
+          return {
+              value: void 0,
+              done: !0
+          }
+      },
+      ua = function(a) {
+          this.next = function(b) {
+              return a.next_(b)
+          };
+          this["throw"] = function(b) {
+              return a.throw_(b)
+          };
+          this["return"] = function(b) {
+              return ta(a, b)
+          };
+          na();
+          this[Symbol.iterator] = function() {
+              return this
+          }
+      },
+      va = function(a) {
+          function b(d) {
+              return a.next(d)
+          }
+
+          function c(d) {
+              return a["throw"](d)
+          }
+          return new Promise(function(d, e) {
+              function f(k) {
+                  k.done ? d(k.value) : Promise.resolve(k.value).then(b, c).then(f, e)
+              }
+              f(a.next())
+          })
+      };
+  t("Array.prototype.find", function(a) {
+      return a ? a : function(b, c) {
+          a: {
+              var d = this;
+              d instanceof String && (d = String(d));
+              for (var e = d.length, f = 0; f < e; f++) {
+                  var k = d[f];
+                  if (b.call(c, k, f, d)) {
+                      b = k;
+                      break a
+                  }
+              }
+              b = void 0
+          }
+          return b
+      }
+  });
+  var u = function(a, b) {
+      return Object.prototype.hasOwnProperty.call(a, b)
+  };
+  t("WeakMap", function(a) {
+      function b() {}
+
+      function c(g) {
+          var l = typeof g;
+          return "object" === l && null !== g || "function" === l
+      }
+
+      function d(g) {
+          if (!u(g, f)) {
+              var l = new b;
+              ia(g, f, {
+                  value: l
+              })
+          }
+      }
+
+      function e(g) {
+          var l = Object[g];
+          l && (Object[g] = function(n) {
+              if (n instanceof b) return n;
+              d(n);
+              return l(n)
+          })
+      }
+      if (function() {
+              if (!a || !Object.seal) return !1;
+              try {
+                  var g = Object.seal({}),
+                      l = Object.seal({}),
+                      n = new a([
+                          [g, 2],
+                          [l, 3]
+                      ]);
+                  if (2 != n.get(g) || 3 != n.get(l)) return !1;
+                  n["delete"](g);
+                  n.set(l, 4);
+                  return !n.has(g) && 4 == n.get(l)
+              } catch (E) {
+                  return !1
+              }
+          }()) return a;
+      var f = "$jscomp_hidden_" + Math.random();
+      e("freeze");
+      e("preventExtensions");
+      e("seal");
+      var k = 0,
+          h = function(g) {
+              this.id_ = (k += Math.random() + 1).toString();
+              if (g) {
+                  g = p(g);
+                  for (var l; !(l = g.next()).done;) l = l.value, this.set(l[0], l[1])
+              }
+          };
+      h.prototype.set = function(g, l) {
+          if (!c(g)) throw Error("Invalid WeakMap key");
+          d(g);
+          if (!u(g, f)) throw Error("WeakMap key fail: " + g);
+          g[f][this.id_] = l;
+          return this
+      };
+      h.prototype.get = function(g) {
+          return c(g) && u(g, f) ? g[f][this.id_] : void 0
+      };
+      h.prototype.has = function(g) {
+          return c(g) && u(g, f) && u(g[f],
+              this.id_)
+      };
+      h.prototype["delete"] = function(g) {
+          return c(g) && u(g, f) && u(g[f], this.id_) ? delete g[f][this.id_] : !1
+      };
+      return h
+  });
+  t("Map", function(a) {
+      if (function() {
+              if (!a || "function" != typeof a || !a.prototype.entries || "function" != typeof Object.seal) return !1;
+              try {
+                  var h = Object.seal({
+                          x: 4
+                      }),
+                      g = new a(p([
+                          [h, "s"]
+                      ]));
+                  if ("s" != g.get(h) || 1 != g.size || g.get({
+                          x: 4
+                      }) || g.set({
+                          x: 4
+                      }, "t") != g || 2 != g.size) return !1;
+                  var l = g.entries(),
+                      n = l.next();
+                  if (n.done || n.value[0] != h || "s" != n.value[1]) return !1;
+                  n = l.next();
+                  return n.done || 4 != n.value[0].x || "t" != n.value[1] || !l.next().done ? !1 : !0
+              } catch (E) {
+                  return !1
+              }
+          }()) return a;
+      na();
+      var b = new WeakMap,
+          c = function(h) {
+              this.data_ = {};
+              this.head_ = f();
+              this.size = 0;
+              if (h) {
+                  h = p(h);
+                  for (var g; !(g = h.next()).done;) g = g.value, this.set(g[0], g[1])
+              }
+          };
+      c.prototype.set = function(h, g) {
+          h = 0 === h ? 0 : h;
+          var l = d(this, h);
+          l.list || (l.list = this.data_[l.id] = []);
+          l.entry ? l.entry.value = g : (l.entry = {
+              next: this.head_,
+              previous: this.head_.previous,
+              head: this.head_,
+              key: h,
+              value: g
+          }, l.list.push(l.entry), this.head_.previous.next = l.entry, this.head_.previous = l.entry, this.size++);
+          return this
+      };
+      c.prototype["delete"] = function(h) {
+          h = d(this, h);
+          return h.entry && h.list ? (h.list.splice(h.index,
+              1), h.list.length || delete this.data_[h.id], h.entry.previous.next = h.entry.next, h.entry.next.previous = h.entry.previous, h.entry.head = null, this.size--, !0) : !1
+      };
+      c.prototype.clear = function() {
+          this.data_ = {};
+          this.head_ = this.head_.previous = f();
+          this.size = 0
+      };
+      c.prototype.has = function(h) {
+          return !!d(this, h).entry
+      };
+      c.prototype.get = function(h) {
+          return (h = d(this, h).entry) && h.value
+      };
+      c.prototype.entries = function() {
+          return e(this, function(h) {
+              return [h.key, h.value]
+          })
+      };
+      c.prototype.keys = function() {
+          return e(this, function(h) {
+              return h.key
+          })
+      };
+      c.prototype.values = function() {
+          return e(this, function(h) {
+              return h.value
+          })
+      };
+      c.prototype.forEach = function(h, g) {
+          for (var l = this.entries(), n; !(n = l.next()).done;) n = n.value, h.call(g, n[1], n[0], this)
+      };
+      c.prototype[Symbol.iterator] = c.prototype.entries;
+      var d = function(h, g) {
+              var l = g && typeof g;
+              "object" == l || "function" == l ? b.has(g) ? l = b.get(g) : (l = "" + ++k, b.set(g, l)) : l = "p_" + g;
+              var n = h.data_[l];
+              if (n && u(h.data_, l))
+                  for (h = 0; h < n.length; h++) {
+                      var E = n[h];
+                      if (g !== g && E.key !== E.key || g === E.key) return {
+                          id: l,
+                          list: n,
+                          index: h,
+                          entry: E
+                      }
+                  }
+              return {
+                  id: l,
+                  list: n,
+                  index: -1,
+                  entry: void 0
+              }
+          },
+          e = function(h, g) {
+              var l = h.head_;
+              return ma(function() {
+                  if (l) {
+                      for (; l.head != h.head_;) l = l.previous;
+                      for (; l.next != l.head;) return l = l.next, {
+                          done: !1,
+                          value: g(l)
+                      };
+                      l = null
+                  }
+                  return {
+                      done: !0,
+                      value: void 0
+                  }
+              })
+          },
+          f = function() {
+              var h = {};
+              return h.previous = h.next = h.head = h
+          },
+          k = 0;
+      return c
+  });
+  var wa = "function" == typeof Object.assign ? Object.assign : function(a, b) {
+      for (var c = 1; c < arguments.length; c++) {
+          var d = arguments[c];
+          if (d)
+              for (var e in d) u(d, e) && (a[e] = d[e])
+      }
+      return a
+  };
+  t("Object.assign", function(a) {
+      return a || wa
+  });
+  t("Object.is", function(a) {
+      return a ? a : function(b, c) {
+          return b === c ? 0 !== b || 1 / b === 1 / c : b !== b && c !== c
+      }
+  });
+  t("Array.prototype.includes", function(a) {
+      return a ? a : function(b, c) {
+          var d = this;
+          d instanceof String && (d = String(d));
+          var e = d.length;
+          c = c || 0;
+          for (0 > c && (c = Math.max(c + e, 0)); c < e; c++) {
+              var f = d[c];
+              if (f === b || Object.is(f, b)) return !0
+          }
+          return !1
+      }
+  });
+  t("String.prototype.includes", function(a) {
+      return a ? a : function(b, c) {
+          if (null == this) throw new TypeError("The 'this' value for String.prototype.includes must not be null or undefined");
+          if (b instanceof RegExp) throw new TypeError("First argument to String.prototype.includes must not be a regular expression");
+          return -1 !== (this + "").indexOf(b, c || 0)
+      }
+  });
+  t("Set", function(a) {
+      if (function() {
+              if (!a || "function" != typeof a || !a.prototype.entries || "function" != typeof Object.seal) return !1;
+              try {
+                  var c = Object.seal({
+                          x: 4
+                      }),
+                      d = new a(p([c]));
+                  if (!d.has(c) || 1 != d.size || d.add(c) != d || 1 != d.size || d.add({
+                          x: 4
+                      }) != d || 2 != d.size) return !1;
+                  var e = d.entries(),
+                      f = e.next();
+                  if (f.done || f.value[0] != c || f.value[1] != c) return !1;
+                  f = e.next();
+                  return f.done || f.value[0] == c || 4 != f.value[0].x || f.value[1] != f.value[0] ? !1 : e.next().done
+              } catch (k) {
+                  return !1
+              }
+          }()) return a;
+      na();
+      var b = function(c) {
+          this.map_ = new Map;
+          if (c) {
+              c = p(c);
+              for (var d; !(d = c.next()).done;) this.add(d.value)
+          }
+          this.size = this.map_.size
+      };
+      b.prototype.add = function(c) {
+          c = 0 === c ? 0 : c;
+          this.map_.set(c, c);
+          this.size = this.map_.size;
+          return this
+      };
+      b.prototype["delete"] = function(c) {
+          c = this.map_["delete"](c);
+          this.size = this.map_.size;
+          return c
+      };
+      b.prototype.clear = function() {
+          this.map_.clear();
+          this.size = 0
+      };
+      b.prototype.has = function(c) {
+          return this.map_.has(c)
+      };
+      b.prototype.entries = function() {
+          return this.map_.entries()
+      };
+      b.prototype.values = function() {
+          return this.map_.values()
+      };
+      b.prototype.keys = b.prototype.values;
+      b.prototype[Symbol.iterator] = b.prototype.values;
+      b.prototype.forEach = function(c, d) {
+          var e = this;
+          this.map_.forEach(function(f) {
+              return c.call(d, f, f, e)
+          })
+      };
+      return b
+  });
+  var v = this || self,
+      xa = function(a) {
+          return "string" == typeof a
+      },
+      ya = function() {},
+      za = function(a) {
+          var b = typeof a;
+          if ("object" == b)
+              if (a) {
+                  if (a instanceof Array) return "array";
+                  if (a instanceof Object) return b;
+                  var c = Object.prototype.toString.call(a);
+                  if ("[object Window]" == c) return "object";
+                  if ("[object Array]" == c || "number" == typeof a.length && "undefined" != typeof a.splice && "undefined" != typeof a.propertyIsEnumerable && !a.propertyIsEnumerable("splice")) return "array";
+                  if ("[object Function]" == c || "undefined" != typeof a.call && "undefined" !=
+                      typeof a.propertyIsEnumerable && !a.propertyIsEnumerable("call")) return "function"
+              } else return "null";
+          else if ("function" == b && "undefined" == typeof a.call) return "object";
+          return b
+      },
+      Aa = function(a) {
+          var b = typeof a;
+          return "object" == b && null != a || "function" == b
+      },
+      Ba = function(a, b, c) {
+          return a.call.apply(a.bind, arguments)
+      },
+      Ca = function(a, b, c) {
+          if (!a) throw Error();
+          if (2 < arguments.length) {
+              var d = Array.prototype.slice.call(arguments, 2);
+              return function() {
+                  var e = Array.prototype.slice.call(arguments);
+                  Array.prototype.unshift.apply(e,
+                      d);
+                  return a.apply(b, e)
+              }
+          }
+          return function() {
+              return a.apply(b, arguments)
+          }
+      },
+      Da = function(a, b, c) {
+          Da = Function.prototype.bind && -1 != Function.prototype.bind.toString().indexOf("native code") ? Ba : Ca;
+          return Da.apply(null, arguments)
+      },
+      Ea = function(a, b) {
+          var c = Array.prototype.slice.call(arguments, 1);
+          return function() {
+              var d = c.slice();
+              d.push.apply(d, arguments);
+              return a.apply(this, d)
+          }
+      },
+      Fa = Date.now || function() {
+          return +new Date
+      },
+      w = function(a, b) {
+          a = a.split(".");
+          var c = v;
+          a[0] in c || "undefined" == typeof c.execScript || c.execScript("var " +
+              a[0]);
+          for (var d; a.length && (d = a.shift());) a.length || void 0 === b ? c = c[d] && c[d] !== Object.prototype[d] ? c[d] : c[d] = {} : c[d] = b
+      },
+      Ga = function(a, b) {
+          function c() {}
+          c.prototype = b.prototype;
+          a.superClass_ = b.prototype;
+          a.prototype = new c;
+          a.prototype.constructor = a
+      };
+  var Ha = function(a) {
+      if (Error.captureStackTrace) Error.captureStackTrace(this, Ha);
+      else {
+          var b = Error().stack;
+          b && (this.stack = b)
+      }
+      a && (this.message = String(a))
+  };
+  Ga(Ha, Error);
+  Ha.prototype.name = "CustomError";
+  var Ia = function(a, b) {
+      a = a.split("%s");
+      for (var c = "", d = a.length - 1, e = 0; e < d; e++) c += a[e] + (e < b.length ? b[e] : "%s");
+      Ha.call(this, c + a[d])
+  };
+  Ga(Ia, Ha);
+  Ia.prototype.name = "AssertionError";
+  var x = function(a, b, c) {
+          if (!a) {
+              var d = "Assertion failed";
+              if (b) {
+                  d += ": " + b;
+                  var e = Array.prototype.slice.call(arguments, 2)
+              }
+              throw new Ia("" + d, e || []);
+          }
+      },
+      Ja = function(a, b) {
+          throw new Ia("Failure" + (a ? ": " + a : ""), Array.prototype.slice.call(arguments, 1));
+      };
+  var z = function() {
+      this.disposed_ = this.disposed_;
+      this.onDisposeCallbacks_ = this.onDisposeCallbacks_
+  };
+  z.prototype.disposed_ = !1;
+  z.prototype.dispose = function() {
+      this.disposed_ || (this.disposed_ = !0, this.disposeInternal())
+  };
+  var Ka = function(a, b) {
+      a.disposed_ ? b() : (a.onDisposeCallbacks_ || (a.onDisposeCallbacks_ = []), a.onDisposeCallbacks_.push(b))
+  };
+  z.prototype.disposeInternal = function() {
+      if (this.onDisposeCallbacks_)
+          for (; this.onDisposeCallbacks_.length;) this.onDisposeCallbacks_.shift()()
+  };
+  var La = function(a) {
+      a && "function" == typeof a.dispose && a.dispose()
+  };
+  var A = function(a, b) {
+      this.type = a;
+      this.currentTarget = this.target = b;
+      this.defaultPrevented = this.propagationStopped_ = !1;
+      this.returnValue_ = !0
+  };
+  A.prototype.stopPropagation = function() {
+      this.propagationStopped_ = !0
+  };
+  A.prototype.preventDefault = function() {
+      this.defaultPrevented = !0;
+      this.returnValue_ = !1
+  };
+  var Ma = Array.prototype.indexOf ? function(a, b) {
+      x(null != a.length);
+      return Array.prototype.indexOf.call(a, b, void 0)
+  } : function(a, b) {
+      if (xa(a)) return xa(b) && 1 == b.length ? a.indexOf(b, 0) : -1;
+      for (var c = 0; c < a.length; c++)
+          if (c in a && a[c] === b) return c;
+      return -1
+  };
+  var Na = String.prototype.trim ? function(a) {
+          return a.trim()
+      } : function(a) {
+          return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(a)[1]
+      },
+      Oa = function(a, b) {
+          return a < b ? -1 : a > b ? 1 : 0
+      };
+  var B;
+  a: {
+      var Pa = v.navigator;
+      if (Pa) {
+          var Qa = Pa.userAgent;
+          if (Qa) {
+              B = Qa;
+              break a
+          }
+      }
+      B = ""
+  };
+  var Ra = function(a, b) {
+          for (var c in a)
+              if (b.call(void 0, a[c], c, a)) return !0;
+          return !1
+      },
+      Sa = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" "),
+      Ta = function(a, b) {
+          for (var c, d, e = 1; e < arguments.length; e++) {
+              d = arguments[e];
+              for (c in d) a[c] = d[c];
+              for (var f = 0; f < Sa.length; f++) c = Sa[f], Object.prototype.hasOwnProperty.call(d, c) && (a[c] = d[c])
+          }
+      };
+  var Ua = function() {
+      this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = ""
+  };
+  Ua.prototype.toString = function() {
+      return "SafeScript{" + this.privateDoNotAccessOrElseSafeScriptWrappedValue_ + "}"
+  };
+  Ua.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(a) {
+      this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = a
+  };
+  (new Ua).initSecurityPrivateDoNotAccessOrElse_("");
+  var Va = function() {
+      this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = ""
+  };
+  Va.prototype.toString = function() {
+      return "SafeStyle{" + this.privateDoNotAccessOrElseSafeStyleWrappedValue_ + "}"
+  };
+  Va.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(a) {
+      this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = a
+  };
+  (new Va).initSecurityPrivateDoNotAccessOrElse_("");
+  var Wa = function() {
+      this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = ""
+  };
+  Wa.prototype.toString = function() {
+      return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}"
+  };
+  Wa.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(a) {
+      this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = a
+  };
+  (new Wa).initSecurityPrivateDoNotAccessOrElse_("");
+  var Xa = function() {
+      this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = ""
+  };
+  Xa.prototype.toString = function() {
+      return "SafeHtml{" + this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ + "}"
+  };
+  Xa.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(a) {
+      this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = a
+  };
+  (new Xa).initSecurityPrivateDoNotAccessOrElse_("<!DOCTYPE html>");
+  (new Xa).initSecurityPrivateDoNotAccessOrElse_("");
+  (new Xa).initSecurityPrivateDoNotAccessOrElse_("<br>");
+  var Ya = function(a) {
+      Ya[" "](a);
+      return a
+  };
+  Ya[" "] = ya;
+  var Za = -1 != B.indexOf("Opera"),
+      $a = -1 != B.indexOf("Trident") || -1 != B.indexOf("MSIE"),
+      ab = -1 != B.indexOf("Edge"),
+      bb = -1 != B.indexOf("Gecko") && !(-1 != B.toLowerCase().indexOf("webkit") && -1 == B.indexOf("Edge")) && !(-1 != B.indexOf("Trident") || -1 != B.indexOf("MSIE")) && -1 == B.indexOf("Edge"),
+      cb = -1 != B.toLowerCase().indexOf("webkit") && -1 == B.indexOf("Edge"),
+      db = function() {
+          var a = v.document;
+          return a ? a.documentMode : void 0
+      },
+      eb;
+  a: {
+      var fb = "",
+          gb = function() {
+              var a = B;
+              if (bb) return /rv:([^\);]+)(\)|;)/.exec(a);
+              if (ab) return /Edge\/([\d\.]+)/.exec(a);
+              if ($a) return /\b(?:MSIE|rv)[: ]([^\);]+)(\)|;)/.exec(a);
+              if (cb) return /WebKit\/(\S+)/.exec(a);
+              if (Za) return /(?:Version)[ \/]?(\S+)/.exec(a)
+          }();
+      gb && (fb = gb ? gb[1] : "");
+      if ($a) {
+          var hb = db();
+          if (null != hb && hb > parseFloat(fb)) {
+              eb = String(hb);
+              break a
+          }
+      }
+      eb = fb
+  }
+  var ib = eb,
+      jb = {},
+      kb;
+  kb = v.document && $a ? db() : void 0;
+  var lb = Object.freeze || function(a) {
+      return a
+  };
+  var mb;
+  (mb = !$a) || (mb = 9 <= Number(kb));
+  var nb = mb,
+      ob;
+  if (ob = $a) {
+      var pb;
+      if (Object.prototype.hasOwnProperty.call(jb, "9")) pb = jb["9"];
+      else {
+          for (var qb = 0, rb = Na(String(ib)).split("."), sb = Na("9").split("."), tb = Math.max(rb.length, sb.length), ub = 0; 0 == qb && ub < tb; ub++) {
+              var vb = rb[ub] || "",
+                  wb = sb[ub] || "";
+              do {
+                  var xb = /(\d*)(\D*)(.*)/.exec(vb) || ["", "", "", ""],
+                      yb = /(\d*)(\D*)(.*)/.exec(wb) || ["", "", "", ""];
+                  if (0 == xb[0].length && 0 == yb[0].length) break;
+                  qb = Oa(0 == xb[1].length ? 0 : parseInt(xb[1], 10), 0 == yb[1].length ? 0 : parseInt(yb[1], 10)) || Oa(0 == xb[2].length, 0 == yb[2].length) || Oa(xb[2], yb[2]);
+                  vb = xb[3];
+                  wb = yb[3]
+              } while (0 == qb)
+          }
+          pb = jb["9"] = 0 <= qb
+      }
+      ob = !pb
+  }
+  var zb = ob,
+      Ab = function() {
+          if (!v.addEventListener || !Object.defineProperty) return !1;
+          var a = !1,
+              b = Object.defineProperty({}, "passive", {
+                  get: function() {
+                      a = !0
+                  }
+              });
+          try {
+              v.addEventListener("test", ya, b), v.removeEventListener("test", ya, b)
+          } catch (c) {}
+          return a
+      }();
+  var C = function(a, b) {
+      A.call(this, a ? a.type : "");
+      this.relatedTarget = this.currentTarget = this.target = null;
+      this.button = this.screenY = this.screenX = this.clientY = this.clientX = this.offsetY = this.offsetX = 0;
+      this.key = "";
+      this.charCode = this.keyCode = 0;
+      this.metaKey = this.shiftKey = this.altKey = this.ctrlKey = !1;
+      this.state = null;
+      this.pointerId = 0;
+      this.pointerType = "";
+      this.event_ = null;
+      if (a) {
+          var c = this.type = a.type,
+              d = a.changedTouches && a.changedTouches.length ? a.changedTouches[0] : null;
+          this.target = a.target || a.srcElement;
+          this.currentTarget =
+              b;
+          if (b = a.relatedTarget) {
+              if (bb) {
+                  a: {
+                      try {
+                          Ya(b.nodeName);
+                          var e = !0;
+                          break a
+                      } catch (f) {}
+                      e = !1
+                  }
+                  e || (b = null)
+              }
+          } else "mouseover" == c ? b = a.fromElement : "mouseout" == c && (b = a.toElement);
+          this.relatedTarget = b;
+          d ? (this.clientX = void 0 !== d.clientX ? d.clientX : d.pageX, this.clientY = void 0 !== d.clientY ? d.clientY : d.pageY, this.screenX = d.screenX || 0, this.screenY = d.screenY || 0) : (this.offsetX = cb || void 0 !== a.offsetX ? a.offsetX : a.layerX, this.offsetY = cb || void 0 !== a.offsetY ? a.offsetY : a.layerY, this.clientX = void 0 !== a.clientX ? a.clientX : a.pageX,
+              this.clientY = void 0 !== a.clientY ? a.clientY : a.pageY, this.screenX = a.screenX || 0, this.screenY = a.screenY || 0);
+          this.button = a.button;
+          this.keyCode = a.keyCode || 0;
+          this.key = a.key || "";
+          this.charCode = a.charCode || ("keypress" == c ? a.keyCode : 0);
+          this.ctrlKey = a.ctrlKey;
+          this.altKey = a.altKey;
+          this.shiftKey = a.shiftKey;
+          this.metaKey = a.metaKey;
+          this.pointerId = a.pointerId || 0;
+          this.pointerType = xa(a.pointerType) ? a.pointerType : Bb[a.pointerType] || "";
+          this.state = a.state;
+          this.event_ = a;
+          a.defaultPrevented && this.preventDefault()
+      }
+  };
+  Ga(C, A);
+  var Bb = lb({
+      2: "touch",
+      3: "pen",
+      4: "mouse"
+  });
+  C.prototype.stopPropagation = function() {
+      C.superClass_.stopPropagation.call(this);
+      this.event_.stopPropagation ? this.event_.stopPropagation() : this.event_.cancelBubble = !0
+  };
+  C.prototype.preventDefault = function() {
+      C.superClass_.preventDefault.call(this);
+      var a = this.event_;
+      if (a.preventDefault) a.preventDefault();
+      else if (a.returnValue = !1, zb) try {
+          if (a.ctrlKey || 112 <= a.keyCode && 123 >= a.keyCode) a.keyCode = -1
+      } catch (b) {}
+  };
+  var Cb = "closure_listenable_" + (1E6 * Math.random() | 0),
+      Db = 0;
+  var Eb = function(a, b, c, d, e) {
+          this.listener = a;
+          this.proxy = null;
+          this.src = b;
+          this.type = c;
+          this.capture = !!d;
+          this.handler = e;
+          this.key = ++Db;
+          this.removed = this.callOnce = !1
+      },
+      Fb = function(a) {
+          a.removed = !0;
+          a.listener = null;
+          a.proxy = null;
+          a.src = null;
+          a.handler = null
+      };
+  var D = function(a) {
+      this.src = a;
+      this.listeners = {};
+      this.typeCount_ = 0
+  };
+  D.prototype.add = function(a, b, c, d, e) {
+      var f = a.toString();
+      a = this.listeners[f];
+      a || (a = this.listeners[f] = [], this.typeCount_++);
+      var k = Gb(a, b, d, e); - 1 < k ? (b = a[k], c || (b.callOnce = !1)) : (b = new Eb(b, this.src, f, !!d, e), b.callOnce = c, a.push(b));
+      return b
+  };
+  D.prototype.remove = function(a, b, c, d) {
+      a = a.toString();
+      if (!(a in this.listeners)) return !1;
+      var e = this.listeners[a];
+      b = Gb(e, b, c, d);
+      return -1 < b ? (Fb(e[b]), x(null != e.length), Array.prototype.splice.call(e, b, 1), 0 == e.length && (delete this.listeners[a], this.typeCount_--), !0) : !1
+  };
+  var Hb = function(a, b) {
+      var c = b.type;
+      if (c in a.listeners) {
+          var d = a.listeners[c],
+              e = Ma(d, b),
+              f;
+          if (f = 0 <= e) x(null != d.length), Array.prototype.splice.call(d, e, 1);
+          f && (Fb(b), 0 == a.listeners[c].length && (delete a.listeners[c], a.typeCount_--))
+      }
+  };
+  D.prototype.getListener = function(a, b, c, d) {
+      a = this.listeners[a.toString()];
+      var e = -1;
+      a && (e = Gb(a, b, c, d));
+      return -1 < e ? a[e] : null
+  };
+  D.prototype.hasListener = function(a, b) {
+      var c = void 0 !== a,
+          d = c ? a.toString() : "",
+          e = void 0 !== b;
+      return Ra(this.listeners, function(f) {
+          for (var k = 0; k < f.length; ++k)
+              if (!(c && f[k].type != d || e && f[k].capture != b)) return !0;
+          return !1
+      })
+  };
+  var Gb = function(a, b, c, d) {
+      for (var e = 0; e < a.length; ++e) {
+          var f = a[e];
+          if (!f.removed && f.listener == b && f.capture == !!c && f.handler == d) return e
+      }
+      return -1
+  };
+  var Ib = "closure_lm_" + (1E6 * Math.random() | 0),
+      Jb = {},
+      Kb = 0,
+      Mb = function(a, b, c, d, e) {
+          if (d && d.once) Lb(a, b, c, d, e);
+          else if ("array" == za(b))
+              for (var f = 0; f < b.length; f++) Mb(a, b[f], c, d, e);
+          else c = Nb(c), a && a[Cb] ? a.listen(b, c, Aa(d) ? !!d.capture : !!d, e) : Ob(a, b, c, !1, d, e)
+      },
+      Ob = function(a, b, c, d, e, f) {
+          if (!b) throw Error("Invalid event type");
+          var k = Aa(e) ? !!e.capture : !!e,
+              h = Pb(a);
+          h || (a[Ib] = h = new D(a));
+          c = h.add(b, c, d, k, f);
+          if (!c.proxy) {
+              d = Qb();
+              c.proxy = d;
+              d.src = a;
+              d.listener = c;
+              if (a.addEventListener) Ab || (e = k), void 0 === e && (e = !1), a.addEventListener(b.toString(),
+                  d, e);
+              else if (a.attachEvent) a.attachEvent(Rb(b.toString()), d);
+              else if (a.addListener && a.removeListener) x("change" === b, "MediaQueryList only has a change event"), a.addListener(d);
+              else throw Error("addEventListener and attachEvent are unavailable.");
+              Kb++
+          }
+      },
+      Qb = function() {
+          var a = Sb,
+              b = nb ? function(c) {
+                  return a.call(b.src, b.listener, c)
+              } : function(c) {
+                  c = a.call(b.src, b.listener, c);
+                  if (!c) return c
+              };
+          return b
+      },
+      Lb = function(a, b, c, d, e) {
+          if ("array" == za(b))
+              for (var f = 0; f < b.length; f++) Lb(a, b[f], c, d, e);
+          else c = Nb(c), a && a[Cb] ?
+              a.eventTargetListeners_.add(String(b), c, !0, Aa(d) ? !!d.capture : !!d, e) : Ob(a, b, c, !0, d, e)
+      },
+      Tb = function(a, b, c, d, e) {
+          if ("array" == za(b))
+              for (var f = 0; f < b.length; f++) Tb(a, b[f], c, d, e);
+          else d = Aa(d) ? !!d.capture : !!d, c = Nb(c), a && a[Cb] ? a.eventTargetListeners_.remove(String(b), c, d, e) : a && (a = Pb(a)) && (b = a.getListener(b, c, d, e)) && Ub(b)
+      },
+      Ub = function(a) {
+          if ("number" != typeof a && a && !a.removed) {
+              var b = a.src;
+              if (b && b[Cb]) Hb(b.eventTargetListeners_, a);
+              else {
+                  var c = a.type,
+                      d = a.proxy;
+                  b.removeEventListener ? b.removeEventListener(c, d, a.capture) :
+                      b.detachEvent ? b.detachEvent(Rb(c), d) : b.addListener && b.removeListener && b.removeListener(d);
+                  Kb--;
+                  (c = Pb(b)) ? (Hb(c, a), 0 == c.typeCount_ && (c.src = null, b[Ib] = null)) : Fb(a)
+              }
+          }
+      },
+      Rb = function(a) {
+          return a in Jb ? Jb[a] : Jb[a] = "on" + a
+      },
+      Wb = function(a, b, c, d) {
+          var e = !0;
+          if (a = Pb(a))
+              if (b = a.listeners[b.toString()])
+                  for (b = b.concat(), a = 0; a < b.length; a++) {
+                      var f = b[a];
+                      f && f.capture == c && !f.removed && (f = Vb(f, d), e = e && !1 !== f)
+                  }
+              return e
+      },
+      Vb = function(a, b) {
+          var c = a.listener,
+              d = a.handler || a.src;
+          a.callOnce && Ub(a);
+          return c.call(d, b)
+      },
+      Sb = function(a,
+          b) {
+          if (a.removed) return !0;
+          if (!nb) {
+              if (!b) a: {
+                  b = ["window", "event"];
+                  for (var c = v, d = 0; d < b.length; d++)
+                      if (c = c[b[d]], null == c) {
+                          b = null;
+                          break a
+                      }
+                  b = c
+              }
+              d = b;
+              b = new C(d, this);
+              c = !0;
+              if (!(0 > d.keyCode || void 0 != d.returnValue)) {
+                  a: {
+                      var e = !1;
+                      if (0 == d.keyCode) try {
+                          d.keyCode = -1;
+                          break a
+                      } catch (k) {
+                          e = !0
+                      }
+                      if (e || void 0 == d.returnValue) d.returnValue = !0
+                  }
+                  d = [];
+                  for (e = b.currentTarget; e; e = e.parentNode) d.push(e);a = a.type;
+                  for (e = d.length - 1; !b.propagationStopped_ && 0 <= e; e--) {
+                      b.currentTarget = d[e];
+                      var f = Wb(d[e], a, !0, b);
+                      c = c && f
+                  }
+                  for (e = 0; !b.propagationStopped_ &&
+                      e < d.length; e++) b.currentTarget = d[e],
+                  f = Wb(d[e], a, !1, b),
+                  c = c && f
+              }
+              return c
+          }
+          return Vb(a, new C(b, this))
+      },
+      Pb = function(a) {
+          a = a[Ib];
+          return a instanceof D ? a : null
+      },
+      Xb = "__closure_events_fn_" + (1E9 * Math.random() >>> 0),
+      Nb = function(a) {
+          x(a, "Listener can not be null.");
+          if ("function" == za(a)) return a;
+          x(a.handleEvent, "An object listener must have handleEvent method.");
+          a[Xb] || (a[Xb] = function(b) {
+              return a.handleEvent(b)
+          });
+          return a[Xb]
+      };
+  var F = function() {
+      z.call(this);
+      this.eventTargetListeners_ = new D(this);
+      this.actualEventTarget_ = this;
+      this.parentEventTarget_ = null
+  };
+  Ga(F, z);
+  F.prototype[Cb] = !0;
+  m = F.prototype;
+  m.addEventListener = function(a, b, c, d) {
+      Mb(this, a, b, c, d)
+  };
+  m.removeEventListener = function(a, b, c, d) {
+      Tb(this, a, b, c, d)
+  };
+  m.dispatchEvent = function(a) {
+      Yb(this);
+      var b = this.parentEventTarget_;
+      if (b) {
+          var c = [];
+          for (var d = 1; b; b = b.parentEventTarget_) c.push(b), x(1E3 > ++d, "infinite loop")
+      }
+      b = this.actualEventTarget_;
+      d = a.type || a;
+      if (xa(a)) a = new A(a, b);
+      else if (a instanceof A) a.target = a.target || b;
+      else {
+          var e = a;
+          a = new A(d, b);
+          Ta(a, e)
+      }
+      e = !0;
+      if (c)
+          for (var f = c.length - 1; !a.propagationStopped_ && 0 <= f; f--) {
+              var k = a.currentTarget = c[f];
+              e = Zb(k, d, !0, a) && e
+          }
+      a.propagationStopped_ || (k = a.currentTarget = b, e = Zb(k, d, !0, a) && e, a.propagationStopped_ || (e = Zb(k, d, !1,
+          a) && e));
+      if (c)
+          for (f = 0; !a.propagationStopped_ && f < c.length; f++) k = a.currentTarget = c[f], e = Zb(k, d, !1, a) && e;
+      return e
+  };
+  m.disposeInternal = function() {
+      F.superClass_.disposeInternal.call(this);
+      if (this.eventTargetListeners_) {
+          var a = this.eventTargetListeners_,
+              b = 0,
+              c;
+          for (c in a.listeners) {
+              for (var d = a.listeners[c], e = 0; e < d.length; e++) ++b, Fb(d[e]);
+              delete a.listeners[c];
+              a.typeCount_--
+          }
+      }
+      this.parentEventTarget_ = null
+  };
+  m.listen = function(a, b, c, d) {
+      Yb(this);
+      return this.eventTargetListeners_.add(String(a), b, !1, c, d)
+  };
+  var Zb = function(a, b, c, d) {
+      b = a.eventTargetListeners_.listeners[String(b)];
+      if (!b) return !0;
+      b = b.concat();
+      for (var e = !0, f = 0; f < b.length; ++f) {
+          var k = b[f];
+          if (k && !k.removed && k.capture == c) {
+              var h = k.listener,
+                  g = k.handler || k.src;
+              k.callOnce && Hb(a.eventTargetListeners_, k);
+              e = !1 !== h.call(g, d) && e
+          }
+      }
+      return e && 0 != d.returnValue_
+  };
+  F.prototype.getListener = function(a, b, c, d) {
+      return this.eventTargetListeners_.getListener(String(a), b, c, d)
+  };
+  F.prototype.hasListener = function(a, b) {
+      return this.eventTargetListeners_.hasListener(void 0 !== a ? String(a) : void 0, b)
+  };
+  var Yb = function(a) {
+      x(a.eventTargetListeners_, "Event target is not initialized. Did you call the superclass (goog.events.EventTarget) constructor?")
+  };
+  var $b = function(a, b, c) {
+      this.reset(a, b, c, void 0, void 0)
+  };
+  $b.prototype.exception_ = null;
+  var ac = 0;
+  $b.prototype.reset = function(a, b, c, d, e) {
+      "number" == typeof e || ac++;
+      this.time_ = d || Fa();
+      this.level_ = a;
+      this.msg_ = b;
+      this.loggerName_ = c;
+      delete this.exception_
+  };
+  $b.prototype.setLevel = function(a) {
+      this.level_ = a
+  };
+  var G = function(a) {
+          this.name_ = a;
+          this.handlers_ = this.children_ = this.level_ = this.parent_ = null
+      },
+      bc = function(a, b) {
+          this.name = a;
+          this.value = b
+      };
+  bc.prototype.toString = function() {
+      return this.name
+  };
+  var cc = new bc("SEVERE", 1E3),
+      dc = new bc("WARNING", 900),
+      ec = new bc("INFO", 800),
+      fc = new bc("CONFIG", 700),
+      gc = new bc("FINE", 500);
+  G.prototype.getName = function() {
+      return this.name_
+  };
+  G.prototype.getParent = function() {
+      return this.parent_
+  };
+  G.prototype.setLevel = function(a) {
+      this.level_ = a
+  };
+  var hc = function(a) {
+      if (a.level_) return a.level_;
+      if (a.parent_) return hc(a.parent_);
+      Ja("Root logger has no level set.");
+      return null
+  };
+  G.prototype.log = function(a, b, c) {
+      if (a.value >= hc(this).value)
+          for ("function" == za(b) && (b = b()), a = new $b(a, String(b), this.name_), c && (a.exception_ = c), c = this; c;) {
+              var d = c,
+                  e = a;
+              if (d.handlers_)
+                  for (var f = 0; b = d.handlers_[f]; f++) b(e);
+              c = c.getParent()
+          }
+  };
+  G.prototype.info = function(a, b) {
+      this.log(ec, a, b)
+  };
+  var ic = {},
+      jc = null,
+      kc = function() {
+          jc || (jc = new G(""), ic[""] = jc, jc.setLevel(fc))
+      },
+      lc = function(a) {
+          kc();
+          var b;
+          if (!(b = ic[a])) {
+              b = new G(a);
+              var c = a.lastIndexOf("."),
+                  d = a.substr(c + 1);
+              c = lc(a.substr(0, c));
+              c.children_ || (c.children_ = {});
+              c.children_[d] = b;
+              b.parent_ = c;
+              ic[a] = b
+          }
+          return b
+      };
+  var mc = function(a, b) {
+          console.log('in mc', a, b)
+          a = lc(a);
+          console.log('after lc', a)
+          b && a && a.setLevel(b);
+          return a
+      },
+      H = function(a, b) {
+        console.log('in H', a, b)
+          a && a.log(cc, b, void 0)
+      },
+      nc = function(a) {
+          console.log('in nc', a)
+          var b = I;
+          b && b.log(dc, a, void 0)
+      },
+      J = function(a, b) {
+        console.log('in J', a, b)
+          a && a.info(b, void 0)
+      };
+  mc("goog.net.WebSocket");
+  var oc = function(a) {
+      A.call(this, "c");
+      this.message = a
+  };
+  Ga(oc, A);
+  var pc = mc("sdk.common.platform.WebSocket"),
+      qc = function() {
+          z.call(this);
+          this.eventTarget_ = new F;
+          this.opened_ = !1
+      };
+  q(qc, z);
+  m = qc.prototype;
+  m.disposeInternal = function() {
+      this.close();
+      this.eventTarget_.dispose()
+  };
+  m.open = function() {
+      this.opened_ ? H(pc, "PlatformChannel Already open") : cast.__platform__.channel.open(Da(this.onOpened_, this), Da(this.onMessage_, this))
+  };
+  m.close = function() {
+      this.opened_ ? cast.__platform__.channel.close(Da(this.onClosed_, this)) : H(pc, "PlatformChannel Cannot close unopened channel")
+  };
+  m.isOpen = function() {
+      return this.opened_
+  };
+  m.send = function(a) {
+      console.log("m.send", a)
+      x(this.opened_, "Cannot send until channel is openned");
+      cast.__platform__.channel.send(a)
+  };
+  m.onOpened_ = function(a) {
+      this.opened_ = a;
+      this.dispatchEvent_(a ? "d" : "b")
+  };
+  m.onClosed_ = function() {
+      this.opened_ && (this.opened_ = !1, this.dispatchEvent_("a"))
+  };
+  m.onMessage_ = function(a) {
+      console.log("m.onMessage_", a)
+      this.dispatchEvent_(new oc(a))
+  };
+  m.addEventListener = function(a, b) {
+      this.eventTarget_.listen(a, b)
+  };
+  m.removeEventListener = function(a, b) {
+      this.eventTarget_.eventTargetListeners_.remove(String(a), b, void 0, void 0)
+  };
+  m.dispatchEvent_ = function(a) {
+      console.log("m.dispatchEvent_", a)
+      a = xa(a) ? new A(a) : a;
+      a.target = this;
+      this.eventTarget_.dispatchEvent(a)
+  };
+  var L = mc("sdk.common.ipc", dc),
+      rc = function() {
+          this.sendAsIs_ = !0;
+          this.websocket_ = null;
+          if (cast.__platform__ && cast.__platform__.channel) {
+              J(L, "IpcChannelUsing platform socket");
+              var a = new qc;
+              this.websocket_ && this.websocket_.dispose();
+              this.websocket_ = a;
+              this.websocket_.addEventListener("d", this.onOpened_.bind(this));
+              this.websocket_.addEventListener("a", this.onClosed_.bind(this));
+              this.websocket_.addEventListener("b", this.onError_.bind(this));
+              this.websocket_.addEventListener("c", this.onMessage_.bind(this))
+          } else J(L,
+              "IpcChannelCould not initiate connection to platform");
+          this.eventTarget_ = new F
+      };
+  m = rc.prototype;
+  m.onOpened_ = function() {};
+  m.onClosed_ = function() {};
+  m.onError_ = function() {
+      H(L, "IpcChannel Communication error")
+  };
+  m.onMessage_ = function(a) {
+    console.log("m.onMessage_", a)
+      J(L, "IpcChannelReceived message: " + a.message);
+      try {
+          var b = JSON.parse(a.message),
+              c = b.namespace,
+              d = b.senderId,
+              e = b.data;
+          var f = c && d && e ? new sc(c, d, e) : new sc("urn:x-cast:com.google.cast.generic", "*:*", a.message)
+      } catch (k) {
+          J(L, "IpcChannelParse error for packet: " + a.message), f = new sc("urn:x-cast:com.google.cast.generic", "*:*", a.message)
+      }
+      this.dispatchEvent_(f)
+  };
+  m.open = function() {
+      L && L.log(gc, "IpcChannelOpening message bus socket", void 0);
+      this.websocket_.open("ws://localhost")
+  };
+  m.close = function() {
+      J(L, "IpcChannelClosing message bus websocket");
+      this.websocket_.close()
+  };
+  m.isOpen = function() {
+      return this.websocket_.isOpen()
+  };
+  m.send = function(a, b, c) {
+    console.log("m.send", a, b, c)
+      a = this.sendAsIs_ ? c : JSON.stringify({
+          namespace: a,
+          senderId: b,
+          data: c
+      });
+      this.websocket_.send(a);
+      J(L, "IpcChannelMessage sent: " + a)
+  };
+  m.addEventListener = function(a, b) {
+      this.eventTarget_.listen(a, b)
+  };
+  m.removeEventListener = function(a, b) {
+      this.eventTarget_.eventTargetListeners_.remove(String(a), b, void 0, void 0)
+  };
+  m.dispatchEvent_ = function(a) {
+      a.target = this;
+      this.eventTarget_.dispatchEvent(a)
+  };
+  var sc = function(a, b, c) {
+      A.call(this, a);
+      this.senderId = b;
+      this.data = c
+  };
+  q(sc, A);
+  var tc = mc("sdk.common.messageBus", dc),
+      uc = function(a, b, c, d) {
+          z.call(this);
+          this.namespace_ = a;
+          this.senderId_ = b;
+          this.ipcChannel_ = c;
+          this.messageType_ = d || "STRING";
+          this.onSend = this.onMessage = null;
+          this.serializeMessage = this.defaultSerializeMessage_;
+          this.deserializeMessage = this.defaultDeserializeMessage_;
+          this.messageInternalHandler_ = this.onMessageInternal_.bind(this);
+          this.ipcChannel_.addEventListener(this.namespace_, this.messageInternalHandler_)
+      };
+  q(uc, z);
+  var vc = function(a) {
+      return "MessageBus[" + a.namespace_ + "]"
+  };
+  m = uc.prototype;
+  m.onMessageInternal_ = function(a) {
+      var b = this;
+      tc && tc.log(gc, vc(this) + "Dispatching message", void 0);
+      var c = "STRING" === this.messageType_ ? a.data : this.deserializeMessage(a.data),
+          d = new wc("message", a.senderId, c);
+      this.onMessage && setTimeout(function() {
+          return b.onMessage(d)
+      }, 0);
+      this.eventTarget_ && (this.dispatchEvent_(new wc(a.senderId, a.senderId, c)), this.dispatchEvent_(d))
+  };
+  m.send = function(a) {
+    console.log("m.send", a)
+      this.ipcChannel_ && this.ipcChannel_.isOpen() || H(tc, vc(this) + "Application should not send requests before the system is ready (they will be ignored)");
+      if (!this.onSend || !this.onSend(this.senderId_, this.namespace_, a))
+          if ("STRING" === this.messageType_) {
+              if ("string" != typeof a) throw Error("Wrong argument, MessageBus type is STRING");
+              this.ipcChannel_.send(this.namespace_, this.senderId_, a)
+          } else this.ipcChannel_.send(this.namespace_, this.senderId_, this.serializeMessage(a))
+  };
+  m.defaultSerializeMessage_ = function(a) {
+      if ("JSON" !== this.messageType_) throw Error("Unexpected message type for JSON serialization,please override serializeMessage");
+      return JSON.stringify(a)
+  };
+  m.defaultDeserializeMessage_ = function(a) {
+      if ("JSON" !== this.messageType_) throw Error("Unexpected message type for JSON serialization,please override deserializeMessage");
+      return JSON.parse(a)
+  };
+  m.disposeInternal = function() {
+      z.prototype.disposeInternal.call(this);
+      this.ipcChannel_.removeEventListener(this.namespace_, this.messageInternalHandler_);
+      this.eventTarget_.dispose();
+      tc && tc.log(gc, "Disposed " + vc(this), void 0)
+  };
+  m.addEventListener = function(a, b) {
+      this.eventTarget_ || (this.eventTarget_ = new F);
+      this.eventTarget_.listen(a, b)
+  };
+  m.removeEventListener = function(a, b) {
+      this.eventTarget_ || (this.eventTarget_ = new F);
+      this.eventTarget_.eventTargetListeners_.remove(String(a), b, void 0, void 0)
+  };
+  m.dispatchEvent_ = function(a) {
+      a.target = this;
+      this.eventTarget_.dispatchEvent(a)
+  };
+  var wc = function(a, b, c) {
+      A.call(this, a);
+      this.senderId = b;
+      this.data = c
+  };
+  q(wc, A);
+  var xc = {
+      DISCONNECT: "action.devices.DISCONNECT",
+      EVENT: "action.devices.EVENT",
+      EXECUTE: "action.devices.EXECUTE",
+      QUERY: "action.devices.QUERY",
+      SYNC: "action.devices.SYNC",
+      IDENTIFY: "action.devices.IDENTIFY",
+      INDICATE: "action.devices.INDICATE",
+      PARSE_NOTIFICATION: "action.devices.PARSE_NOTIFICATION",
+      PROVISION: "action.devices.PROVISION",
+      PROXY_SELECTED: "action.devices.PROXY_SELECTED",
+      REACHABLE_DEVICES: "action.devices.REACHABLE_DEVICES",
+      REGISTER: "action.devices.REGISTER",
+      UPDATE: "action.devices.UPDATE",
+      UNPROVISION: "action.devices.UNPROVISION",
+      CLOUD_INTENT: "action.devices.CLOUD_INTENT",
+      NOTIFICATION: "action.devices.NOTIFICATION",
+      REPORT_STATE: "action.devices.REPORT_STATE"
+  };
+  w("smarthome.Intents", xc);
+  var yc = new Map,
+      zc = function() {};
+  r.Object.defineProperties(zc, {
+      Map: {
+          configurable: !0,
+          enumerable: !0,
+          get: function() {
+              return yc
+          }
+      }
+  });
+  var Ac = function(a) {
+          this.type = a
+      },
+      Bc = function() {
+          this.type = "library.platform.APPLICATION_READY"
+      };
+  q(Bc, Ac);
+  var M = function(a) {
+      this.type = "platform.library.ACTION_START";
+      this.intent = a
+  };
+  q(M, Ac);
+  var Cc = function(a) {
+      this.type = a
+  };
+  q(Cc, Ac);
+  var Dc = function(a) {
+      this.type = a
+  };
+  q(Dc, Cc);
+  var Ec = function() {
+      this.type = "library.platform.ACTION_SUCCESS"
+  };
+  q(Ec, Dc);
+  var Fc = function() {
+      this.type = "library.platform.ACTION_PENDING"
+  };
+  q(Fc, Dc);
+  var Gc = function(a, b) {
+      this.type = "library.platform.ACTION_FAILURE";
+      this.errorCode = a;
+      this.debugString = b
+  };
+  q(Gc, Dc);
+  w("smarthome.VERSION", "2.2.3");
+  w("smarthome.NAMESPACE_PREFIX", "urn:x-cast:");
+  var Hc = {
+      ASSISTANT: "ASSISTANT",
+      BLE: "BLE",
+      HTTP: "HTTP",
+      TCP: "TCP",
+      UDP: "UDP",
+      BLE_MESH: "BLE_MESH"
+  };
+  w("smarthome.Constants.EventType", {
+      AUTOCONNECT: "autoconnect",
+      DISCONNECT: "disconnect"
+  });
+  w("smarthome.Constants.Protocol", Hc);
+  w("smarthome.Constants.RadioType", {
+      BLE: "BLE",
+      WIFI: "WIFI"
+  });
+  w("smarthome.Constants.BleOperation", {
+      CREATE_BOND: "CREATE_BOND",
+      DISCONNECT: "DISCONNECT",
+      READ: "READ",
+      REGISTER_FOR_NOTIFICATIONS: "REGISTER_FOR_NOTIFICATIONS",
+      REMOVE_BOND: "REMOVE_BOND",
+      REQUEST_MTU: "REQUEST_MTU",
+      WRITE: "WRITE",
+      WRITE_WITHOUT_RESPONSE: "WRITE_WITHOUT_RESPONSE"
+  });
+  w("smarthome.Constants.HttpOperation", {
+      GET: "GET",
+      PUT: "PUT",
+      POST: "POST"
+  });
+  w("smarthome.Constants.TcpOperation", {
+      READ: "READ",
+      WRITE: "WRITE"
+  });
+  var Ic = Math.floor(1E4 * Math.random()),
+      N = function(a, b) {
+          this.type = a;
+          this.deviceId = "";
+          this.commandId_ = Ic++;
+          this.protocol = b
+      };
+  N.prototype.toJSON = function() {
+      return {
+          requestId: this.requestId,
+          type: this.type,
+          commandId: this.commandId,
+          deviceId: this.deviceId,
+          protocol: this.protocol
+      }
+  };
+  r.Object.defineProperties(N.prototype, {
+      commandId: {
+          configurable: !0,
+          enumerable: !0,
+          get: function() {
+              return this.commandId_
+          },
+          set: function(a) {
+              this.commandId_ = a
+          }
+      }
+  });
+  var O = function(a, b) {
+      N.call(this, "library.platform.COMMAND", a);
+      this.optionsKey = b;
+      this.data = ""
+  };
+  q(O, N);
+  O.prototype.toJSON = function() {
+      var a = N.prototype.toJSON.call(this);
+      a.bytes = this.data;
+      a[this.optionsKey] = this.optionsValue;
+      return a
+  };
+  var Jc = function() {
+      O.call(this, "HTTP", "httpOptions")
+  };
+  q(Jc, O);
+  Jc.prototype.toJSON = function() {
+      this.optionsValue = {
+          method: this.method,
+          path: this.path,
+          port: this.port,
+          protocol: this.isSecure ? "HTTPS" : "HTTP",
+          headers: this.headers,
+          dataType: this.dataType
+      };
+      return O.prototype.toJSON.call(this)
+  };
+  var Kc = function() {
+      O.call(this, "UDP", "udpOptions")
+  };
+  q(Kc, O);
+  Kc.prototype.toJSON = function() {
+      this.optionsValue = {
+          port: this.port
+      };
+      return O.prototype.toJSON.call(this)
+  };
+  var Lc = function() {
+      O.call(this, "TCP", "tcpOptions")
+  };
+  q(Lc, O);
+  Lc.prototype.toJSON = function() {
+      this.optionsValue = {
+          security: this.isSecure ? "SECURE" : "INSECURE",
+          port: this.port,
+          operation: this.operation,
+          hostname: this.hostname,
+          bytesToRead: this.bytesToRead ? this.bytesToRead : 0
+      };
+      return O.prototype.toJSON.call(this)
+  };
+  var Mc = function() {
+      O.call(this, "ASSISTANT", "assistantOptions")
+  };
+  q(Mc, O);
+  Mc.prototype.toJSON = function() {
+      this.optionsValue = {
+          data: this.data
+      };
+      return O.prototype.toJSON.call(this)
+  };
+  var Nc = function() {
+      O.call(this, "BLE", "bleOptions")
+  };
+  q(Nc, O);
+  Nc.prototype.toJSON = function() {
+      this.optionsValue = {
+          serviceUuid: this.serviceUuid,
+          characteristicUuid: this.characteristicUuid,
+          operation: this.operation
+      };
+      this.mtu && (this.optionsValue.mtu = this.mtu);
+      return O.prototype.toJSON.call(this)
+  };
+  var Oc = function() {
+      O.call(this, "BLE_MESH", "bleMeshOptions")
+  };
+  q(Oc, O);
+  Oc.prototype.toJSON = function() {
+      this.optionsValue = {
+          opcode: this.opcode,
+          parameters: this.parameters
+      };
+      return O.prototype.toJSON.call(this)
+  };
+  var Pc = function(a) {
+      N.call(this, "platform.library.COMMAND_SUCCESS", a)
+  };
+  q(Pc, N);
+  var Qc = function() {
+      Pc.call(this, "BLE")
+  };
+  q(Qc, Pc);
+  Qc.prototype.toJSON = function() {
+      var a = Pc.prototype.toJSON.call(this);
+      return Object.assign(a, {
+          bleResponse: this.bleResponse,
+          customData: this.customData
+      })
+  };
+  w("smarthome.DataFlow.AssistantRequestData", Mc);
+  w("smarthome.DataFlow.BleMeshRequestData", Oc);
+  w("smarthome.DataFlow.BleRequestData", Nc);
+  w("smarthome.DataFlow.HttpRequestData", Jc);
+  w("smarthome.DataFlow.TcpRequestData", Lc);
+  w("smarthome.DataFlow.UdpRequestData", Kc);
+
+  function Rc(a) {
+      var b = a;
+      if ("string" === typeof a) try {
+          b = JSON.parse(a)
+      } catch (c) {
+          console.log("Error parsing " + a), console.error(c)
+      }
+      return b
+  }
+
+  function Sc(a, b) {
+      if (b) {
+          var c = b.verificationId;
+          b = b.id;
+          if (!c || !Array.isArray(a)) return b;
+          if (a = a.find(function(d) {
+                  return Array.isArray(d.otherDeviceIds) ? d.otherDeviceIds.includes(c) : !1
+              })) return a.id
+      }
+  }
+  var Tc = function(a, b, c, d) {
+          c = void 0 === c ? [] : c;
+          d = void 0 === d ? [] : d;
+          var e = {};
+          console.log('In TC', a)
+          console.log('In TC a', a)
+          console.log('In TC b', b)
+          console.log('In TC c', c)
+          console.log('In TC d', d)
+          c.forEach(function(g) {
+              if ("undefined" !== typeof a.jsonPayload[g] && null !== a.jsonPayload[g]) switch (g) {
+                  case "bleScanData":
+                      e.bleData = a.jsonPayload[g];
+                      break;
+                  case "customData":
+                      e[g] = Rc(a.jsonPayload[g]);
+                      console.log('switch customData', e[g])
+                      break;
+                  case "deviceId":
+                      
+                      e.id = a.jsonPayload[g];
+                      console.log('switch deviceId', e.id)
+                      break;
+                  case "mdnsScanData":
+                      var l = a.jsonPayload[g];
+                      g = a.jsonPayload[g];
+                      e.mdnsScanData = {
+                          additionals: [{
+                              type: g.name || "TXT",
+                              "class": g.name || "IN",
+                              name: g.name || l.serviceName,
+                              ttl: g.ttl || 4500,
+                              data: g.data ||
+                                  l.texts
+                          }]
+                      };
+                      break;
+                  case "udpScanData":
+                      e.udpScanData = a.jsonPayload[g].data || a.jsonPayload[g];
+                      console.log('switch udpScanData', e.udpScanData)
+                      break;
+                  default:
+                      e[g] = a.jsonPayload[g]
+              }
+          });
+          console.log('TC return device ', e)
+          var f = {
+                  requestId: a.requestId,
+                  inputs: [{
+                      intent: b,
+                      payload: {
+                          device: e
+                      }
+                  }],
+                  devices: []
+              },
+              k = {};
+          d.forEach(function(g) {
+              k[g] = a.jsonPayload[g]
+          });
+          d.length && (f.inputs[0].payload.params = k);
+          "undefined" !== typeof a.structureData && null !== a.structureData && (f.inputs[0].payload.structureData = Rc(a.structureData || a.jsonPayload.structureData));
+          b = function(g) {
+              g.customData && (g.customData = Rc(g.customData));
+              return g
+          };
+          b = Array.isArray(a.devices) ? a.devices.map(b) : [];
+          b.forEach(function(g) {
+              f.devices.push({
+                  id: g.id,
+                  customData: g.customData
+              })
+          });
+          var h = f.inputs[0].payload.device;
+          if (b = b.find(function(g) {
+                  return g.id === h.id && !h.customData
+              })) h.customData = b.customData;
+          console.log('TC return f ', f)
+          return f
+      },
+      P = function(a, b, c, d) {
+          c = void 0 === c ? [] : c;
+          d = void 0 === d ? [] : d;
+          c.push("id", "deviceId", "radioTypes");
+          c.push("bleScanData", "mdnsScanData", "udpScanData", "upnpScanData");
+          return Tc(a, b, c, d)
+      },
+      Uc = function() {
+          M.call(this, "action.devices.IDENTIFY")
+      };
+  q(Uc, M);
+  Uc.responseTransform = function(a, b) {
+      b = b.payload.device;
+      var c = Sc(a.devices, b);
+      if (!c) throw new Vc(a.requestId, "deviceNotFound", "VerificationId failed to match any unverified devices.");
+      a = {
+          manufacturer: "UNKNOWN_MANUFACTURER",
+          model: "UNKNOWN_MODEL",
+          hwVersion: "UNKNOWN_HW_VERSION",
+          swVersion: "UNKNOWN_SW_VERSION"
+      };
+      a = b.deviceInfo || a;
+      return {
+          id: c,
+          type: b.type || "action.devices.types.UNKNOWN",
+          manufacturer: a.manufacturer,
+          model: a.model,
+          hwVersion: a.hwVersion,
+          swVersion: a.swVersion,
+          indicationMode: b.indicationMode || "UNDEFINED",
+          isProxy: b.isProxy ? !0 : !1,
+          isLocalOnly: b.isLocalOnly ? !0 : !1,
+          commandedOverProxy: b.commandedOverProxy ? !0 : !1,
+          requiresBonding: b.requiresBonding ? !0 : !1,
+          avoidAutoconnect: b.avoidAutoconnect ? !0 : !1
+      }
+  };
+  Uc.transform = function(a) {
+      return P(a, "action.devices.IDENTIFY", [])
+  };
+  var Wc = function() {
+      M.call(this, "action.devices.INDICATE")
+  };
+  q(Wc, M);
+  Wc.transform = function(a) {
+      return P(a, "action.devices.INDICATE", [], ["start"])
+  };
+  var Xc = function() {
+      M.call(this, "action.devices.UPDATE")
+  };
+  q(Xc, M);
+  Xc.transform = function(a) {
+      return P(a, "action.devices.UPDATE", [], ["url"])
+  };
+  var Yc = function() {
+      M.call(this, "action.devices.PROVISION")
+  };
+  q(Yc, M);
+  Yc.responseTransform = function(a, b) {
+      a = Object.assign({}, b.payload);
+      b = b.payload.structureData;
+      "string" !== typeof b && (a.structureData = JSON.stringify(b));
+      return a
+  };
+  Yc.transform = function(a) {
+      return P(a, "action.devices.PROVISION")
+  };
+  var Zc = function() {
+      M.call(this, "action.devices.PARSE_NOTIFICATION")
+  };
+  q(Zc, M);
+  Zc.transform = function(a) {
+      var b = P(a, "action.devices.PARSE_NOTIFICATION", ["protocol"]);
+      b.inputs[0].payload.device.notificationData = a.payload.bleData;
+      return b
+  };
+  var $c = function() {
+      M.call(this, "action.devices.NOTIFICATION")
+  };
+  q($c, M);
+  $c.transform = function(a) {
+      var b = P(a, "action.devices.NOTIFICATION", ["protocol"]);
+      b.inputs[0].payload.device.notificationData = a.payload.bleData;
+      return b
+  };
+  var ad = function() {
+      M.call(this, "action.devices.PROXY_SELECTED")
+  };
+  q(ad, M);
+  ad.transform = function(a) {
+      console.log('PROXY_SELECTED transform', a)
+      return Tc(a, "action.devices.PROXY_SELECTED", ["id", "customData"])
+  };
+  var bd = function() {
+      M.call(this, "action.devices.REACHABLE_DEVICES")
+  };
+  q(bd, M);
+  bd.responseTransform = function(a, b) {
+      var c = b.payload.devices,
+          d = a.devices;
+      a = [];
+      for (var e = p(c), f = e.next(); !f.done; f = e.next()) {
+          f = f.value;
+          var k = Sc(d, f);
+          k ? (f.id = k, delete f.verificationId, a.push(f)) : console.error("Failed to match device " + f + " with cloud synced devices ")
+      }
+      c = c.length - a.length;
+      0 < c && console.log("Failed to match " + c + " devices.");
+      b.payload.devices = a;
+      return b.payload
+  };
+  bd.transform = function(a) {
+      return P(a, "action.devices.REACHABLE_DEVICES", ["proxyDevice"])
+  };
+  var cd = function() {
+      M.call(this, "action.devices.REGISTER")
+  };
+  q(cd, M);
+  cd.responseTransform = function(a, b) {
+      a = a.payload;
+      var c = b.payload.devices[0];
+      c.localId = a.localId;
+      c.routableViaGcm = !0;
+      c.gcmExecutionAddress = a.gcmId;
+      a.roomId ? c.inferredRoom = {
+          structureIdFromHint: a.structureId,
+          roomIdFromHint: a.roomId
+      } : a.roomName && (c.structureIdHint = a.structureId, c.roomHint = a.roomName);
+      b.intent && delete b.intent;
+      return b
+  };
+  cd.transform = function(a) {
+      a = P(a, "action.devices.REGISTER", ["deviceName"]);
+      var b = a.inputs[0].payload.device;
+      b.name = b.deviceName;
+      delete b.deviceName;
+      return a
+  };
+  var dd = function() {
+      M.call(this, "action.devices.EVENT")
+  };
+  q(dd, M);
+  dd.transform = function(a) {
+      return P(a, "action.devices.EVENT", ["type"])
+  };
+  var ed = function(a) {
+      M.call(this, "action.devices.CLOUD_INTENT");
+      this.trueIntent = a
+  };
+  q(ed, M);
+  ed.transform = function(a) {
+      var b = Rc(a.structureData);
+      a.payload.inputs[0].payload.structureData = b;
+      return a.payload
+  };
+  var fd = function() {
+      ed.call(this, "action.devices.QUERY")
+  };
+  q(fd, ed);
+  var gd = function() {
+      console.log('WILL CALL EXECUTE')
+      ed.call(this, "action.devices.EXECUTE")
+  };
+  q(gd, ed);
+  var hd = function() {
+      M.call(this, "action.devices.UNPROVISION")
+  };
+  q(hd, M);
+  hd.transform = function(a) {
+      return P(a, "action.devices.UNPROVISION")
+  };
+  var Vc = function(a, b, c) {
+      var d = Error.call(this, b || "unknownError");
+      this.message = d.message;
+      "stack" in d && (this.stack = d.stack);
+      this.debugString = c;
+      this.errorCode = b;
+      this.payload = {};
+      this.response = {
+          requestId: a,
+          payload: {
+              errorCode: b,
+              debugString: c
+          }
+      }
+  };
+  q(Vc, Error);
+  Vc.prototype.toJSON = function() {
+      return this.response
+  };
+  r.Object.defineProperties(Vc.prototype, {
+      response: {
+          configurable: !0,
+          enumerable: !0,
+          set: function(a) {
+              this.payload = a
+          },
+          get: function() {
+              return this.payload
+          }
+      }
+  });
+  var id = {
+          EVENT: dd,
+          EXECUTE: gd,
+          IDENTIFY: Uc,
+          INDICATE: Wc,
+          NOTIFICATION: $c,
+          PARSE_NOTIFICATION: Zc,
+          PROVISION: Yc,
+          PROXY_SELECTED: ad,
+          QUERY: fd,
+          REACHABLE_DEVICES: bd,
+          REGISTER: cd,
+          UNPROVISION: hd,
+          UPDATE: Xc
+      },
+      jd = {
+          NOT_SUPPORTED: "NOT_SUPPORTED",
+          INVALID_REQUEST: "INVALID_REQUEST",
+          INTENT_CANCELLED: "INTENT_CANCELLED",
+          GENERIC_ERROR: "GENERIC_ERROR"
+      };
+  w("smarthome.IntentFlow.ErrorCode", jd);
+  w("smarthome.IntentFlow.HandlerError", Vc);
+  w("smarthome.IntentFlow.IndicationMode", {
+      UNDEFINED: "UNDEFINED",
+      BLINK: "BLINK"
+  });
+  var kd = Vc;
+  var ld = function() {},
+      md = function(a, b) {
+          this.resolve = a;
+          this.reject = b
+      };
+
+  function nd() {
+      return !0
+  }
+
+  function od(a) {
+      return a
+  }
+  var Q = function() {
+      this.packets_ = {};
+      this.eventTarget_ = new F;
+      this.listeners_ = [];
+      this.transform_ = od
+  };
+  Q.prototype.toJSON = function() {
+      return {
+          packets: this.packets_,
+          listeners: this.listeners_
+      }
+  };
+  var pd = function(a, b) {
+      return a.listeners_.find(function(c) {
+          return c.id === b
+      })
+  };
+  Q.prototype.push = function(a, b) {
+      this.dispatchEvent_(a, b);
+      pd(this, a) && (this.packets_[a] || (this.packets_[a] = []), this.packets_[a].push(b), qd(this, a))
+  };
+  Q.prototype.dispatchEvent_ = function(a, b) {
+      a = new rd(a, this.transform_(b));
+      a.target = this;
+      this.eventTarget_.dispatchEvent(a)
+  };
+  Q.prototype.addEventListener = function(a, b) {
+      this.eventTarget_.listen(a, b)
+  };
+  Q.prototype.removeEventListener = function(a, b) {
+      this.eventTarget_.eventTargetListeners_.remove(String(a), b, void 0, void 0)
+  };
+  var qd = function(a, b) {
+          var c = {};
+          a.listeners_.filter(function(d) {
+              return d.id === b && d.n
+          }).filter(function(d) {
+              var e = a.packets_[b].filter(d.filterFunc) || [],
+                  f = e.length >= d.n;
+              f && (c[d.listenerId] = e);
+              return f
+          }).map(function(d) {
+              d.limitPromise.resolve(sd(c[d.listenerId], null, d.transformFunc))
+          });
+          td(a, b)
+      },
+      td = function(a, b, c) {
+          c && (a.listeners_ = a.listeners_.filter(function(d) {
+              return d.listenerId !== c
+          }));
+          pd(a, b) || delete a.packets_[b]
+      },
+      ud = function(a) {
+          return new Promise(function(b) {
+              return setTimeout(b, a)
+          })
+      };
+  Q.prototype.getOne = function(a, b) {
+      b = void 0 === b ? {} : b;
+      return this.getAll(a, {
+          n: 1,
+          filterFunc: void 0 === b.filterFunc ? nd : b.filterFunc,
+          transformFunc: void 0 === b.transformFunc ? od : b.transformFunc,
+          timeout: void 0 === b.timeout ? 1E3 : b.timeout
+      }).then(function(c) {
+          c = void 0 === c ? [] : c;
+          return c[0]
+      })
+  };
+  Q.prototype.getAll = function(a, b) {
+      var c = this;
+      b = void 0 === b ? {} : b;
+      var d = b.n,
+          e = b.timeout,
+          f = void 0 === b.filterFunc ? nd : b.filterFunc,
+          k = void 0 === b.transformFunc ? od : b.transformFunc;
+      return d || e ? new Promise(function(h, g) {
+          var l = !1,
+              n = Math.floor(1E5 * Math.random()),
+              E = function(U) {
+                  return function(T) {
+                      l || (l = !0, td(c, a, U), T && T.length ? (console.log("Resolving with " + T.length + " packets"), h(T)) : (l || console.error("No packets found in " + e + "ms"), g(Error("TIMEOUT"))))
+                  }
+              }(n),
+              K = new md(E, g),
+              y = new ld;
+          y.id = a;
+          y.listenerId = n;
+          y.limitPromise =
+              K;
+          y.n = d;
+          y.timeout = e;
+          y.filterFunc = f;
+          y.transformFunc = k;
+          c.listeners_.push(y);
+          ud(e || 1E3).then(function() {
+              return E(sd(c.packets_[a] || [], f, k))
+          })["catch"](function(U) {
+              console.error("Notification timeout promise failed with error " + U);
+              console.trace()
+          })
+      }) : Promise.reject(Error("Incorrect Arguments. One of n or timeout is required"))
+  };
+  var sd = function(a, b, c) {
+      b && (a = a.filter(b));
+      return a.map(c)
+  };
+  Q.prototype.getAll = Q.prototype.getAll;
+  Q.prototype.getOne = Q.prototype.getOne;
+  Q.prototype.push = Q.prototype.push;
+  Q.prototype.toJSON = Q.prototype.toJSON;
+  var rd = function(a, b) {
+      A.call(this, a);
+      this.data = b
+  };
+  q(rd, A);
+  var R = function(a) {
+          if (!a || "urn:x-cast:com.google.cast.generic" != a.namespace_) throw Error("Invalid message bus");
+          this.messageBus_ = a;
+          this.messageBus_.onMessage = this.onMessage_.bind(this);
+          this.handlers_ = new Map;
+          this.pendingCommands_ = new Map;
+          this.requestIdToCommandsMap_ = new Map;
+          this.cancelledActions_ = new Set;
+          this.notificationsBus_ = new Q;
+          this.eventListeners_ = new Map;
+          vd(this)
+      },
+      wd = function(a) {
+          var b = a.intent;
+          if ("action.devices.CLOUD_INTENT" === b) try {
+              b = a.payload.inputs[0].intent
+          } catch (c) {
+              H(I, "Failed to get real intent, using CLOUD_INTENT"),
+                  b = "action.devices.CLOUD_INTENT"
+          }
+          return b.replace("action.devices.", "")
+      };
+  R.prototype.setMessageHandler = function(a, b) {
+      if (null !== b && "function" != za(b)) throw H(I, "Given handler is not a function or null"), Error("Given handler is not a function or null");
+      var c = a.replace("action.devices.", "");
+      if (c && xc[c]) null === b ? this.handlers_["delete"](c) : this.handlers_.set(c, b);
+      else throw b = "Cannot set handler for " + c, H(I, b), Error(b);
+  };
+  R.prototype.setIntentHandler = function(a, b) {
+      this.setMessageHandler(a, b)
+  };
+  var S = function(a, b) {
+          var c = "";
+          b && (c += b + "\n");
+          c += "  Pending Actions: " + a.requestIdToCommandsMap_.size + "\n";
+          c += "  Cancelled Actions: " + a.cancelledActions_.size + "\n";
+          c += "  Pending Commands: " + a.pendingCommands_.size + "\n";
+          J(I, c)
+      },
+      Ad = function(a, b) {
+          S(a, "Before processing ACTION_START");
+          b = b.data;
+          var c = b.intent;
+          c = b.payload;
+          if ("string" === typeof c) try {
+              c = JSON.parse(b.payload), b.jsonPayload = c
+          } catch (e) {
+              xd(a, "Incorrect Payload for message", b, "INVALID_REQUEST");
+              return
+          }
+          b.payload = c;
+          if ((c = wd(b)) && xc[c] && id[c]) {
+              b.requestJSON =
+                  id[c].transform(b);
+              var d = b.proxyInfo;
+              Array.isArray(d) && d.forEach(function(e) {
+                  zc.Map.set(e.targetDeviceId, e)
+              });
+              "action.devices.NOTIFICATION" === b.intent && (yd(a, b), d = id["action.devices.PARSE_NOTIFICATION".replace("action.devices.", "")].transform(b), c = "action.devices.PARSE_NOTIFICATION".replace("action.devices.", ""), b.intent = "action.devices.PARSE_NOTIFICATION", b.requestJSON = d);
+              (d = a.handlers_.get(c)) ? zd(a, b, d): xd(a, "Handler for " + c + " not implemented", b, "NOT_SUPPORTED")
+          } else xd(a, "Unsupported intent:" +
+              c, b, "NOT_SUPPORTED")
+      };
+  R.prototype.onMessage_ = function(a) {
+      var b = a.data,
+          c = b.type;
+      switch (c) {
+          case "platform.library.APPLICATION_READY_RESPONSE":
+              nc("Cast shell version: " + b.castBuildRelease);
+              nc("SDK version: 2.2.3");
+              break;
+          case "platform.library.ACTION_START":
+              Ad(this, a);
+              break;
+          case "platform.library.ACTION_CANCEL":
+              Bd(this, b.requestId, b);
+              break;
+          case "platform.library.COMMAND_SUCCESS":
+              Cd(this, b.requestId, b);
+              break;
+          case "platform.library.COMMAND_FAILURE":
+              Cd(this, b.requestId, b);
+              break;
+          case "platform.library.LOG":
+              switch (b.logLevel) {
+                  case "WARNING":
+                      nc("Platform says: " + b.message);
+                      break;
+                  case "ERROR":
+                      H(I, "Platform says: " + b.message);
+                      break;
+                  default:
+                      J(I, "Platform says: " + b.message)
+              }
+              break;
+          default:
+              Dd(this, "Unsupported event " + c, b, "INVALID_REQUEST")
+      }
+  };
+  var Bd = function(a, b, c) {
+          b && "platform.library.ACTION_CANCEL" == c.type && (S(a, "Before processing ACTION_CANCEL"), a.cancelledActions_.add(b), (a.requestIdToCommandsMap_.get(b) || []).forEach(function(d) {
+              d = d.commandId;
+              var e = a.pendingCommands_.get(b + ":" + d);
+              if (e) return a.pendingCommands_["delete"](b + ":" + d), e.reject(Error(jd.INTENT_CANCELLED))
+          }), a.requestIdToCommandsMap_["delete"](b), S(a, "After processing ACTION_CANCEL"))
+      },
+      Cd = function(a, b, c) {
+          if (b) {
+              var d = a.pendingCommands_.get(b + ":" + c.commandId);
+              d ? (a.pendingCommands_["delete"](b +
+                  ":" + c.commandId), "platform.library.COMMAND_FAILURE" == c.type ? (a = new kd(b, c.errorCode, c.debugString), d.reject(a)) : d.resolve(c)) : nc("No matching request for responsereqId: " + (b + ", cmdId: " + c.commandId))
+          }
+      },
+      Ed = function(a, b) {
+          return a.cancelledActions_.has(b) ? (a.cancelledActions_["delete"](b), a.requestIdToCommandsMap_["delete"](b), S(a, "After processing ACTION_CANCEL"), !0) : !1
+      },
+      zd = function(a, b, c) {
+          Promise.resolve().then(function() {
+              return c(b.requestJSON)
+          }).then(function(d) {
+              if (Ed(a, b.requestId)) nc("Action already cancelled, reqId: " +
+                  b.requestId);
+              else {
+                  if (!0 !== d instanceof Dc) {
+                      var e = b.intent;
+                      "action.devices.IDENTIFY" === e || "action.devices.PROVISION" === e || "action.devices.REACHABLE_DEVICES" === e || "action.devices.REGISTER" === e ? (e = wd(b), d = id[e].responseTransform(b, d)) : d = "action.devices.CLOUD_INTENT" === b.intent ? d : "action.devices.PARSE_NOTIFICATION" === b.intent ? d.payload.devices : d.payload;
+                      e = new Ec;
+                      e.intent = "action.devices.PARSE_NOTIFICATION" === b.intent ? "action.devices.REPORT_STATE" : xc[wd(b)];
+                      e.requestId = b.requestId;
+                      e.payload = JSON.stringify(d);
+                      d = e
+                  }
+                  "action.devices.REGISTER" === b.intent && (e = JSON.parse(d.payload || "{}"), d.agentDeviceId = e.payload.devices[0].id + "");
+                  d = Fd(b, d);
+                  a.requestIdToCommandsMap_["delete"](b.requestId);
+                  S(a, "After processing ACTION_START -> ACTION SUCCESS");
+                  a.messageBus_.send(d)
+              }
+          })["catch"](function(d) {
+              Ed(a, b.requestId) ? nc("Action already cancelled, reqId: " + b.requestId) : (console.error(d), H(I, "Got a rejected promise " + d.message), J(I, d.stack), d instanceof kd ? (d = Gd(b, d, "APP_ERROR"), S(a, "After processing ACTION_START -> specific ACTION_FAILURE"),
+                  a.messageBus_.send(d)) : d instanceof Error ? xd(a, "Got a rejected promise " + d.message, b, "APP_ERROR") : xd(a, "Got a rejected promise " + JSON.stringify(d), b, "APP_ERROR"), a.requestIdToCommandsMap_["delete"](b.requestId))
+          })
+      },
+      Fd = function(a, b) {
+          if (!b) return Hd("No response data", a, "APP_ERROR");
+          switch (b.type) {
+              case "library.platform.ACTION_SUCCESS":
+              case "library.platform.ACTION_PENDING":
+              case "library.platform.ACTION_FAILURE":
+                  return b.requestId = a.requestId, b
+          }
+          return Hd("Invalid response data " + JSON.stringify(b), a,
+              "APP_ERROR")
+      },
+      Hd = function(a, b, c) {
+          H(I, a);
+          a = new Gc(c, a);
+          a.requestId = b.requestId;
+          a.payload = JSON.stringify({});
+          return a
+      },
+      Dd = function(a, b, c, d) {
+          b = Hd(b, c, d);
+          S(a, "After processing a MESSAGE -> FAILURE");
+          a.messageBus_.send(b)
+      },
+      Gd = function(a, b, c) {
+          c = c || "APP_ERROR";
+          var d = b.debugString || "";
+          H(I, d);
+          c = new Gc(c, d);
+          c.requestId = a.requestId;
+          c.intent = xc[wd(a)];
+          c.payload = JSON.stringify(b);
+          return c
+      },
+      xd = function(a, b, c, d) {
+          b = new kd(c.requestId, "unknownError", b);
+          c = Gd(c, b, d);
+          S(a, "After processing ACTION_START -> generic ACTION_FAILURE");
+          a.messageBus_.send(c)
+      };
+  R.prototype.start = function() {
+      var a = this,
+          b = Fa(),
+          c = new Bc;
+      c.requestId = "" + b;
+      return new Promise(function(d) {
+          d({});
+          a.messageBus_.send(c)
+      })
+  };
+  R.prototype.sendAndWait = function(a, b) {
+      var c = this;
+      b = void 0 === b ? {} : b;
+      var d = b.n,
+          e = b.filterFunc,
+          f = b.transformFunc,
+          k = b.timeout;
+      a.commandId_ = Ic++;
+      S(this, "Before sending COMMAND");
+      var h = d || k;
+      h && !k && (k = 5E3);
+      return new Promise(function(g, l) {
+          if (c.cancelledActions_.has(a.requestId)) return S(c, "After processing ACTION_CANCEL -> reject COMMAND"), l(Error(jd.INTENT_CANCELLED));
+          h && c.notificationsBus_.getAll(a.deviceId, {
+              n: d,
+              filterFunc: e,
+              transformFunc: f,
+              timeout: k
+          }).then(function(n) {
+              return d && 1 === d ? g(n[0]) : g(n)
+          })["catch"](l);
+          Id(c, a, !h, g, l);
+          l = c.requestIdToCommandsMap_.get(a.requestId) || [];
+          l.push(a);
+          c.requestIdToCommandsMap_.set(a.requestId, l);
+          c.messageBus_.send(a);
+          S(c, "After sending COMMAND")
+      })
+  };
+  R.prototype.send = function(a) {
+      return a.waitForNotification ? this.sendAndWait(a, {
+          n: 1
+      }) : this.sendAndWait(a)
+  };
+  var yd = function(a, b) {
+          if (b.payload.protocol === Hc.BLE) {
+              var c = new Qc;
+              c.requestId = b.requestId;
+              c.deviceId = b.payload.deviceId;
+              c.bleResponse = b.payload.bleData;
+              c.customData = {};
+              var d = (b.devices || []).find(function(e) {
+                  return b.payload.deviceId === e.id
+              });
+              d && (c.customData = d.customData);
+              J(I, "Pushing to NotificationsBus " + JSON.stringify(c));
+              a.notificationsBus_.push(b.payload.deviceId, c)
+          }
+      },
+      Id = function(a, b, c, d, e) {
+          a.pendingCommands_.set(b.requestId + ":" + b.commandId, new Jd(function(f) {
+              c ? (J(I, "COMMAND_SUCCESS for cmdId: " +
+                  f.commandId), d(f)) : J(I, "Waiting for Notification for cmdId: " + b.commandId);
+              S(a, "After processing COMMAND -> COMMAND_SUCCESS")
+          }, function(f) {
+              e(f);
+              S(a, "After processing COMMAND -> COMMAND_FAILURE")
+          }))
+      };
+  R.prototype.markPending = function(a) {
+      var b = this,
+          c = new Fc;
+      c.requestId = a.requestId;
+      c.intent = a.inputs[0].intent;
+      c.payload = JSON.stringify({});
+      return Promise.resolve().then(function() {
+          var d = Fd(c, c);
+          b.messageBus_.send(d)
+      })["catch"](function(d) {
+          J(I, d.stack);
+          H(I, "Got a rejected promise " + d.message);
+          Dd(b, "Got a rejected promise " + JSON.stringify(d), c, "APP_ERROR")
+      })
+  };
+  R.prototype.getProxyInfo = function(a) {
+      return zc.Map.get(a)
+  };
+  R.prototype.setLoggerLevel = function(a) {
+      I.setLevel(a)
+  };
+  var vd = function(a) {
+          a.setIntentHandler("action.devices.EVENT", function(b) {
+              return Kd(a, b)
+          })
+      },
+      Kd = function(a, b) {
+          var c, d, e, f;
+          return va(new ua(new qa(function(k) {
+              if (1 == k.nextAddress) {
+                  c = b.inputs[0].payload.device;
+                  d = c.type || "";
+                  e = a.eventListeners_.get(d.toLowerCase());
+                  J(I, "Event type: " + d + ", received for device id: " + c.id);
+                  if (!e) return f = {
+                      requestId: b.requestId,
+                      intent: b.inputs[0].intent,
+                      payload: {}
+                  }, k["return"](f);
+                  var h = e(b);
+                  k.nextAddress = 2;
+                  return {
+                      value: h
+                  }
+              }
+              return k["return"](k.yieldResult)
+          })))
+      };
+  R.prototype.setEventListener = function(a, b) {
+      this.eventListeners_.set((a || "").toLowerCase(), b)
+  };
+  w("smarthome.DeviceManager", R);
+  R.prototype.setEventListener = R.prototype.setEventListener;
+  R.prototype.setLoggerLevel = R.prototype.setLoggerLevel;
+  R.prototype.getProxyInfo = R.prototype.getProxyInfo;
+  R.prototype.markPending = R.prototype.markPending;
+  R.prototype.send = R.prototype.send;
+  R.prototype.sendAndWait = R.prototype.sendAndWait;
+  R.prototype.start = R.prototype.start;
+  R.prototype.setIntentHandler = R.prototype.setIntentHandler;
+  R.prototype.setMessageHandler = R.prototype.setMessageHandler;
+  var Jd = function(a, b) {
+          this.resolve = a;
+          this.reject = b
+      },
+      I = mc("smarthome.DeviceManager", dc);
+  var Ld = function() {
+          this.relativeTimeStart_ = Fa()
+      },
+      Md = null;
+  Ld.prototype.set = function(a) {
+      this.relativeTimeStart_ = a
+  };
+  Ld.prototype.reset = function() {
+      this.set(Fa())
+  };
+  Ld.prototype.get = function() {
+      return this.relativeTimeStart_
+  };
+  var Nd = function(a) {
+      this.prefix_ = a || "";
+      Md || (Md = new Ld);
+      this.startTimeProvider_ = Md
+  };
+  m = Nd.prototype;
+  m.appendNewline = !0;
+  m.showAbsoluteTime = !0;
+  m.showRelativeTime = !0;
+  m.showLoggerName = !0;
+  m.showExceptionText = !1;
+  m.showSeverityLevel = !1;
+  var V = function(a) {
+          return 10 > a ? "0" + a : String(a)
+      },
+      Od = function(a, b) {
+          a = (a.time_ - b) / 1E3;
+          b = a.toFixed(3);
+          var c = 0;
+          if (1 > a) c = 2;
+          else
+              for (; 100 > a;) c++, a *= 10;
+          for (; 0 < c--;) b = " " + b;
+          return b
+      },
+      Pd = function(a) {
+          Nd.call(this, a)
+      };
+  Ga(Pd, Nd);
+  var Qd = function(a, b) {
+      var c = [];
+      c.push(a.prefix_, " ");
+      if (a.showAbsoluteTime) {
+          var d = new Date(b.time_);
+          c.push("[", V(d.getFullYear() - 2E3) + V(d.getMonth() + 1) + V(d.getDate()) + " " + V(d.getHours()) + ":" + V(d.getMinutes()) + ":" + V(d.getSeconds()) + "." + V(Math.floor(d.getMilliseconds() / 10)), "] ")
+      }
+      a.showRelativeTime && c.push("[", Od(b, a.startTimeProvider_.get()), "s] ");
+      a.showLoggerName && c.push("[", b.loggerName_, "] ");
+      a.showSeverityLevel && c.push("[", b.level_.name, "] ");
+      c.push(b.msg_);
+      a.showExceptionText && (b = b.exception_) &&
+          c.push("\n", b instanceof Error ? b.message : b.toString());
+      a.appendNewline && c.push("\n");
+      return c.join("")
+  };
+  var Rd = function() {
+      this.publishHandler_ = Da(this.addLogRecord, this);
+      this.formatter_ = new Pd;
+      this.formatter_.showAbsoluteTime = !1;
+      this.formatter_.showExceptionText = !1;
+      this.isCapturing_ = this.formatter_.appendNewline = !1;
+      this.filteredLoggers_ = {}
+  };
+  Rd.prototype.addLogRecord = function(a) {
+      function b(f) {
+          if (f) {
+              if (f.value >= cc.value) return "error";
+              if (f.value >= dc.value) return "warn";
+              if (f.value >= fc.value) return "log"
+          }
+          return "debug"
+      }
+      if (!this.filteredLoggers_[a.loggerName_]) {
+          var c = Qd(this.formatter_, a),
+              d = Sd;
+          if (d) {
+              var e = b(a.level_);
+              Td(d, e, c, a.exception_)
+          }
+      }
+  };
+  var Ud = null,
+      Sd = v.console,
+      Td = function(a, b, c, d) {
+          if (a[b]) a[b](c, d || "");
+          else a.log(c, d || "")
+      };
+  var W = function() {
+      z.call(this);
+      Ud || (Ud = new Rd);
+      if (Ud) {
+          var a = Ud;
+          if (1 != a.isCapturing_) {
+              kc();
+              var b = jc;
+              var c = a.publishHandler_;
+              b.handlers_ || (b.handlers_ = []);
+              b.handlers_.push(c);
+              a.isCapturing_ = !0
+          }
+      }
+      J(Vd, "Version: 2.2.3");
+      this.ipcChannel_ = new rc;
+      this.ipcChannel_.open();
+      this.messageBus_ = new uc("urn:x-cast:com.google.cast.generic", "smarthomejs", this.ipcChannel_, "JSON");
+      Ka(this, Ea(La, this.messageBus_));
+      this.messageBus_.onMessage = this.onMessage_.bind(this);
+      this.messageBusesByNamespace_ = {};
+      this.deviceManager_ =
+          null
+  };
+  q(W, z);
+  W.prototype.getDeviceManager = function() {
+      this.deviceManager_ || (this.deviceManager_ = new R(Wd(this, "urn:x-cast:com.google.cast.generic", "JSON")));
+      return this.deviceManager_
+  };
+  W.prototype.getMessageBus = function(a, b) {
+      if ("urn:x-cast:com.google.cast.generic" == a) throw Error("Protected namespace");
+      return Wd(this, a, b)
+  };
+  var Wd = function(a, b, c) {
+      if (0 != b.lastIndexOf("urn:x-cast:", 0)) throw Error("Invalid namespace prefix");
+      a.messageBusesByNamespace_[b] || (a.messageBusesByNamespace_[b] = new uc(b, "smarthomejs", a.ipcChannel_, c), Ka(a, Ea(La, a.messageBusesByNamespace_[b])));
+      if (c && a.messageBusesByNamespace_[b].messageType_ != c) throw Error("Invalid messageType for the namespace");
+      return a.messageBusesByNamespace_[b]
+  };
+  W.prototype.isSystemReady = function() {
+      return !0
+  };
+  W.prototype.onMessage_ = function() {};
+  var Yd = function() {
+      Xd || (Xd = new W);
+      return Xd
+  };
+  W.prototype.setLoggerLevel = function(a) {
+      Vd.setLevel(a)
+  };
+  w("smarthome.DeviceContext", W);
+  W.prototype.setLoggerLevel = W.prototype.setLoggerLevel;
+  W.getInstance = Yd;
+  W.prototype.isSystemReady = W.prototype.isSystemReady;
+  W.prototype.getMessageBus = W.prototype.getMessageBus;
+  W.prototype.getDeviceManager = W.prototype.getDeviceManager;
+  var Xd = null,
+      Vd = mc("smarthome.DeviceContext", dc);
+  var X = function(a) {
+      this.version = a;
+      this.deviceManager_ = null
+  };
+  m = X.prototype;
+  m.getDeviceManager = function() {
+      this.deviceManager_ || (this.deviceManager_ = Yd().getDeviceManager());
+      return this.deviceManager_
+  };
+  m.onIdentify = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.IDENTIFY", a);
+      return this
+  };
+  m.onIndicate = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.INDICATE", a);
+      return this
+  };
+  m.onProvision = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.PROVISION", a);
+      return this
+  };
+  m.onRegister = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.REGISTER", a);
+      return this
+  };
+  m.onQuery = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.QUERY", a);
+      return this
+  };
+  m.onExecute = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.EXECUTE", a);
+      return this
+  };
+  m.onUpdate = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.UPDATE", a);
+      return this
+  };
+  m.onUnprovision = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.UNPROVISION", a);
+      return this
+  };
+  m.onProxySelected = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.PROXY_SELECTED", a);
+      return this
+  };
+  m.onReachableDevices = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.REACHABLE_DEVICES", a);
+      return this
+  };
+  m.onParseNotification = function(a) {
+      this.getDeviceManager().setIntentHandler("action.devices.PARSE_NOTIFICATION", a);
+      return this
+  };
+  m.on = function(a, b) {
+      this.getDeviceManager().setEventListener(a, b);
+      return this
+  };
+  m.listen = function() {
+      var a = this;
+      return this.getDeviceManager().start().then(function() {
+          return console.log("Ready, App version: " + a.version)
+      })
+  };
+  X.prototype.listen = X.prototype.listen;
+  X.prototype.on = X.prototype.on;
+  X.prototype.onParseNotification = X.prototype.onParseNotification;
+  X.prototype.onReachableDevices = X.prototype.onReachableDevices;
+  X.prototype.onProxySelected = X.prototype.onProxySelected;
+  X.prototype.onUnprovision = X.prototype.onUnprovision;
+  X.prototype.onUpdate = X.prototype.onUpdate;
+  X.prototype.onExecute = X.prototype.onExecute;
+  X.prototype.onQuery = X.prototype.onQuery;
+  X.prototype.onRegister = X.prototype.onRegister;
+  X.prototype.onProvision = X.prototype.onProvision;
+  X.prototype.onIndicate = X.prototype.onIndicate;
+  X.prototype.onIdentify = X.prototype.onIdentify;
+  w("smarthome.App", X);
+  var Zd = function(a) {
+      this.requestId = a.requestId;
+      this.successDevices = a.successDevices;
+      this.errorDevices = a.errorDevices;
+      this.response = {
+          requestId: this.requestId,
+          payload: {
+              commands: []
+          }
+      }
+  };
+  Zd.prototype.toJSON = function() {
+      this.response = {
+          requestId: this.requestId,
+          payload: {
+              commands: []
+          }
+      };
+      for (var a in this.successDevices) {
+          var b = {
+              ids: [a],
+              status: "SUCCESS",
+              states: {}
+          };
+          b.states = this.successDevices[a];
+          this.response.payload.commands.push(b)
+      }
+      for (var c in this.errorDevices) this.response.payload.commands.push({
+          ids: this.errorDevices[c],
+          status: "ERROR",
+          errorCode: c
+      });
+      return this.response
+  };
+  Zd.prototype.toJSON = Zd.prototype.toJSON;
+  var Y = function() {
+      this.requestId = "";
+      this.successDevices = {};
+      this.errorDevices = {}
+  };
+  Y.prototype.setRequestId = function(a) {
+      this.requestId = a;
+      return this
+  };
+  Y.prototype.setSuccessState = function(a, b) {
+      this.successDevices[a] = b;
+      return this
+  };
+  Y.prototype.setErrorState = function(a, b) {
+      this.errorDevices[b] || (this.errorDevices[b] = []);
+      this.errorDevices[b].push(a);
+      return this
+  };
+  Y.prototype.build = function() {
+      return (new Zd(this)).toJSON()
+  };
+  w("module$contents$smarthome$Execute_Response.Builder", Y);
+  Y.prototype.build = Y.prototype.build;
+  Y.prototype.setErrorState = Y.prototype.setErrorState;
+  Y.prototype.setSuccessState = Y.prototype.setSuccessState;
+  Y.prototype.setRequestId = Y.prototype.setRequestId;
+  w("smarthome.Execute.Response.Builder", Y);
+  var $d = function(a) {
+      this.requestId = a.requestId;
+      this.agentUserId = a.agentUserId;
+      this.states = a.states;
+      this.notifications = a.notifications
+  };
+  $d.prototype.toJSON = function() {
+      this.response = {
+          requestId: this.requestId,
+          payload: {
+              devices: {}
+          }
+      };
+      this.response.agentUserId = this.agentUserId;
+      for (var a in this.notifications) this.response.eventId = Date.now() + "", this.response.payload.devices.notifications || (this.response.payload.devices.notifications = {}), this.response.payload.devices.notifications[a] = this.notifications[a];
+      for (var b in this.states) this.response.payload.devices.states || (this.response.payload.devices.states = {}), this.response.payload.devices.states[b] =
+          this.states[b];
+      return this.response
+  };
+  $d.prototype.toJSON = $d.prototype.toJSON;
+  var Z = function() {
+      this.agentUserId = this.requestId = "";
+      this.states = {};
+      this.notifications = {}
+  };
+  m = Z.prototype;
+  m.setRequestId = function(a) {
+      this.requestId = a;
+      return this
+  };
+  m.setAgentUserId = function(a) {
+      this.agentUserId = a;
+      return this
+  };
+  m.setState = function(a, b) {
+      this.states[a] = b;
+      return this
+  };
+  m.setNotification = function(a, b) {
+      this.notifications[a] = b;
+      return this
+  };
+  m.build = function() {
+      return (new $d(this)).toJSON()
+  };
+  w("module$contents$smarthome$ReportState_Response.Builder", Z);
+  Z.prototype.build = Z.prototype.build;
+  Z.prototype.setNotification = Z.prototype.setNotification;
+  Z.prototype.setState = Z.prototype.setState;
+  Z.prototype.setAgentUserId = Z.prototype.setAgentUserId;
+  Z.prototype.setRequestId = Z.prototype.setRequestId;
+  w("smarthome.ReportState.Response.Builder", Z);
+}).call(window);
+    
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

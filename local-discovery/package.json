@@ -1,0 +1,16 @@
+{
+  "name": "@openhab-google-home/local-discovery",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "cbor": "^5.0.1",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.6.3"
+  },
+  "scripts": {
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.8"
+  }
+}

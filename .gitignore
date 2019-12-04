@@ -2,3 +2,4 @@ node_modules/
 braindump
 dist
 gactions
+yarn-error.log
