@@ -1,34 +1,51 @@
 /// <reference types="@google/local-home-sdk" />
 
 import App = smarthome.App;
-import Constants = smarthome.Constants;
-import DataFlow = smarthome.DataFlow;
+
 import Execute = smarthome.Execute;
 import Intents = smarthome.Intents;
 
 import IntentFlow = smarthome.IntentFlow;
-import HttpResponseData = smarthome.DataFlow.HttpResponseData;
+
 
 import * as cbor from 'cbor';
 import { LocalDiscoveryData } from '@openhab-google-home/local-discovery';
-import { OpenhabItem, toGoogleDevice } from '@openhab-google-home/core';
+import { toGoogleDevice, execute } from '@openhab-google-home/core';
+import { LocalApiProxy } from './localApiProxy';
 
-export async function execute(app: App, request: IntentFlow.CloudRequest<IntentFlow.ExecuteRequestPayload>) {
-  console.log('execute request', request);
-  return {};
+
+let lastDiscoveryData: LocalDiscoveryData ; //hack? No way to get port in REACHABLE_DEVICES and EXEC;
+
+export async function onExecute(app: App, request: IntentFlow.CloudRequest<IntentFlow.ExecuteRequestPayload>) {
+  
+  const response = new Execute.Response.Builder().setRequestId(request.requestId);
+  
+  for (const r of request.inputs) {
+    for (const c of r.payload.commands) {
+      const { devices, execution } = c;
+      for (const device of devices) {
+        for (const e of execution) {
+          try {
+            const api = new LocalApiProxy(app, request.requestId, {...lastDiscoveryData, deviceId: device.id});
+            const result = await execute(api, device, e);
+            response.setSuccessState(result.ids[0], result.states);
+          } catch(e) {
+            console.error(e);
+          }
+        }
+      }
+    }
+  }
+  return response.build()
 }
 
-export async function identify(request: IntentFlow.RequestInterface<IntentFlow.LocalIdentifiedDevice, {}>) {
-  console.debug('identify request', request);
+
+export async function onIdentify(request: IntentFlow.RequestInterface<IntentFlow.LocalIdentifiedDevice, {}>) {
   const device = request.inputs[0].payload.device;
-  console.debug('identify device', device);
-
   const udpScanData = Buffer.from(device.udpScanData.data, "hex");
-  console.debug("udpScanData:", udpScanData);
-
   const discoveryData: LocalDiscoveryData = await cbor.decodeFirst(udpScanData);
-  console.debug("discoveryData:", discoveryData);
 
+  lastDiscoveryData = discoveryData;
   const response: IntentFlow.IdentifyResponse = {
     intent: Intents.IDENTIFY,
     requestId: request.requestId,
@@ -40,40 +57,12 @@ export async function identify(request: IntentFlow.RequestInterface<IntentFlow.L
       },
     },
   };
-  console.debug('seding identify response', response)
   return response;
 }
 
-// https://github.com/NabuCasa/home-assistant-google-assistant-local-sdk
-export async function reachableDevices (app: App, request: IntentFlow.ReachableDevicesRequest) {
-    console.debug('reachableDevices', request);
-    // // Reference to the local proxy device
-    // const proxyDevice = request.inputs[0].payload.device.proxyDevice;
-
-    // const udpScanData = Buffer.from(proxyDevice.udpScanData, "hex");
-    // console.debug("udpScanData:", udpScanData);
-
-    // const discoveryData: LocalDiscoveryData = await cbor.decodeFirst(udpScanData);
-    // console.debug("discoveryData:", discoveryData);
-
-    const command = new DataFlow.HttpRequestData();
-    command.method = Constants.HttpOperation.GET;
-    command.requestId = request.requestId;
-    command.deviceId = 'openhab-local', // proxyDevice.id;
-    command.isSecure = false;
-    command.port = 8089 // discoveryData.port;
-    command.path = '/rest/items?fields=editable,groupNames,groupType,name,label,metadata,stateDescription,tags,type&metadata=google,channel,synonyms,autoupdate' //discoveryData.itemPath;
-    command.dataType = "application/json";
-
-    const deviceManager = app.getDeviceManager();
-
-    const resp =await deviceManager.send(command) as HttpResponseData;
-    console.log(request.requestId, "Raw Response", resp);
-
-    const items = JSON.parse(resp.httpResponse.body as string) as OpenhabItem[];
-    console.log('Got response', items);
-
-    // { verificationId: "local-device-id-2" },
+export async function onReachableDevices (app: App, request: IntentFlow.ReachableDevicesRequest) {
+    const api = new LocalApiProxy(app, request.requestId, lastDiscoveryData);
+    const items = await api.getAll();
     const devices = items.map(item => {
       if (!item.metadata || !item.metadata.google) {
         return;
@@ -83,9 +72,6 @@ export async function reachableDevices (app: App, request: IntentFlow.ReachableD
     })
     .filter(i => !!i)
     .map(({id}) => ({ id }))
-
-    console.log('reachableDevices', devices);
-    // Return a response
     const response: IntentFlow.ReachableDevicesResponse = {
       intent: Intents.REACHABLE_DEVICES,
       requestId: request.requestId,

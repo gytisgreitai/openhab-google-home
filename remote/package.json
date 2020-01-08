@@ -4,9 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "actions-on-google": "^2.12.0",
     "@openhab-google-home/core": "1.0.0",
     "@openhab-google-home/local-discovery": "1.0.0",
+    "actions-on-google": "^2.12.0",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "cbor": "^5.0.1",
@@ -15,6 +15,7 @@
     "eventsource": "^1.0.7",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
+    "mime": "1.6.0",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.3"
   },

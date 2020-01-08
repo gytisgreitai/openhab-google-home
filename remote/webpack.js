@@ -1,6 +1,6 @@
 const path = require('path');
 module.exports =  {
-    entry: './src/index.ts',
+    entry: './index.ts',
     target: "node",
     devtool: 'none',
     mode: 'production',
@@ -11,7 +11,8 @@ module.exports =  {
     resolve: {
         extensions: ['.ts', '.js', '.json'],
         modules: [
-            path.resolve(__dirname, 'node_modules')
+            path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname, '../node_modules')
         ],
     },
     optimization: {

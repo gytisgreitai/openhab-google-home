@@ -17,7 +17,6 @@ export function localDiscovery(config: DiscoveryConfig) {
   
   socket
   .on('message', async (msg, info) => {
-    console.log('local discovery message', msg, info)
     const resp = await handleDiscoveryRequest(config, msg, info);
     if (resp) {
       const responsePacket = cbor.encode(resp);
@@ -26,7 +25,6 @@ export function localDiscovery(config: DiscoveryConfig) {
           console.error("failed to send ack:", error);
           return;
         }
-        console.log(`sent discovery response: `,resp, 'to:', info);
       });
     }
   })
@@ -43,10 +41,12 @@ async function handleDiscoveryRequest(config: DiscoveryConfig, msg: Buffer, info
     console.warn("received unknown payload:", msg, "from:", info);
     return;
   }
+  const parsedUrl = new URL(config.openhabUrl);
+  let port = parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80)
 
   return {
-    deviceId: 'openhab-local',
-    port: Number(new URL(config.openhabUrl).port),
+    deviceId: 'openhab-local-device-hub',
+    port: Number(port),
     itemPath: config.openhabItemsPath,
   } as LocalDiscoveryData
 }

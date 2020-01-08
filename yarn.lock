@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@google/local-home-sdk@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@google/local-home-sdk/-/local-home-sdk-0.2.0.tgz#5664f2bf9e175c0a9073c1dd5fb90e1279b08109"
-  integrity sha512-c8w5iJkdwoo8KfZ/ei+wgg1iOTasuaUyDIc1KTjz5Y9edPpW4RvzVX0zD5TmkEWgdBPcW221r3ATlpt6TdpOKg==
+"@google/local-home-sdk@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@google/local-home-sdk/-/local-home-sdk-0.2.1.tgz#89010346b623bc95e88171fd0d7985be81c7867a"
+  integrity sha512-Z7ZZviISLHBYmoiEda3y/RKhDJNmqFiJ7qIiHaJo3i2C12KGg/PYUl3AIYvuoKYip+jrKXX7eMbgM5Fe5/HylA==
 
 "@types/aws-lambda@^0.0.33":
   version "0.0.33"
